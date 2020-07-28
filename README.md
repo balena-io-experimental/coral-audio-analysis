@@ -1,2 +1,2 @@
 # coral-audio-analysis
-Coral Edge TPU project for analyzing noise pollution
+Coral Edge TPU project for analyzing noise pollution - WIP
