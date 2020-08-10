@@ -3,15 +3,14 @@ Coral Edge TPU project for analyzing noise pollution using the Coral Dev board -
 
 **Highlights:**
 
-**Dockerfile** - builds [Librosa](https://librosa.org/doc/latest/index.html#) and all dependencies (including sci-kit, numpy, numba, llvm) as well as pyaudio. Librosa is used to turn large WAV files into small numpy arrays which are fed into the model for interpretation.
+**recorder** - files for container that continuously listens through the mic and records audio files in 4 second chunks if they are above a certain volume threshold.
 
-**qmodel3a8p2_edgetpu.tflite** - Tensorflow model trained on the Urban Sound 8k dataset of 8,000+ sound files in 10 classes. This model has been converted to Tensorflow Lite and integer post-quantized on the internal layers so they will run on the Edge TPU. The input and output tensors are still float32. The model has been compiled for the Edge TPU.
+**classifier** - files for container that looks for newly recorded wav files and anaylzes them using the model. If they are not a reasonable match, they are saved for later analysis and possible upload to the master training node.
 
-**capture.py** - test file for capturing audio from the mic on the Coral Dev board using pyaudio.
+**qmodel3a8p2_edgetpu.tflite** - Tensorflow model in the classifier folder trained on the Urban Sound 8k dataset of 8,000+ sound files in 10 classes. This model has been converted to Tensorflow Lite and integer post-quantized on the internal layers so they will run on the Edge TPU. The input and output tensors are still float32. 70% of the model should execute on the Edge TPU.
 
-**play.py** - test file for playing back sound on the Coral board. Alsa aplayer is also installed.
+**webserver** - small webserver that runs on port 80 to provide a view into the sound app activity, listen to files and decide which ones to upload. 
 
-**classify.py** - Working python script that classifies wav files using the tflite model above. Set for using the sound files in the samples folder. Uses the EdgeTPU when possible, about 70% of the operations for this model.
 
 Device Variables:
 
