@@ -13,4 +13,15 @@ Coral Edge TPU project for analyzing noise pollution using the Coral Dev board -
 
 **classify.py** - Working python script that classifies wav files using the tflite model above. Set for using the sound files in the samples folder. Uses the EdgeTPU when possible, about 70% of the operations for this model.
 
+Device Variables:
 
+(Recorder)
+`WAV_FILE_LIMIT` - total size of all wav files saved to disk in bytes before a warning is issued (default is 6000000000)
+`WAV_REC_THRESHOLD` - minimum intensity of audio reaching mic that triggers a recording start (default is 2000)
+`INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input)
+(Classifier)
+`LABEL_FILE` - path and filename of text file with ordered list of classes for associated model (default is `/data/sound_app/labels.txt`)
+`CERTAINTY_THRESHOLD` - minimum percentage value of top guess to be considered a valid guess (default is 70)
+(both)
+`WAV_PATH` - path where wav files are recorded (default is ``/data/sound_app/`)
+`DB_PATH` - path and filename of SQLite database (default is `/data/sound_app/sound_app.db`)
