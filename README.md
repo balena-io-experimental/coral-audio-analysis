@@ -11,6 +11,7 @@ Coral Edge TPU project for analyzing noise pollution using the Coral Dev board -
 
 **webserver** - small webserver that runs on port 80 to provide a view into the sound app activity, listen to files and decide which ones to upload. 
 
+**samples** - some wav files that can be used for testing purposes. Not uploaded to device any longer.
 
 Device Variables:
 
