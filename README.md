@@ -31,7 +31,7 @@ Device Variables:
 
 (both)
 
-`WAV_PATH` - path where wav files are recorded (default is ``/data/sound_app/`)
+`WAV_PATH` - path where wav files are recorded (default is `/data/sound_app/`)
 
 `DB_PATH` - path and filename of SQLite database (default is `/data/sound_app/sound_app.db`)
 
