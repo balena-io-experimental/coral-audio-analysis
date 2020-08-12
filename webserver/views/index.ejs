@@ -1,0 +1,48 @@
+<%- include("_header") -%>
+
+<!-- First Grid -->
+<div class="w3-row-padding w3-padding-64 w3-container">
+  <div class="w3-content">
+    
+    <h1>Sound Recordings (<%= model.length %>)</h1>
+    <h5 class="w3-padding-32">Use this page to disposition the recordings that have not been classified by the model.</h5>
+
+        <table class="w3-table w3-striped w3-bordered">
+        <thead>
+        <tr class="w3-theme"><th>File Created</th><th>Status</th><th>Top Guess</th><th>2nd Guess</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+                <% for (const wav of model) { %>
+        <tr>
+                <td><%= wav.timestamp_created %></td>
+                <td><%= wav.current_status %></td>
+                <td><%= wav.interpreter_class %>&nbsp;
+                    <% if (wav.interpreter_certainty) { %> 
+                      (<%= wav.interpreter_certainty %>%)
+                    <% } %>
+                    </td>
+                <td><%= wav.interpreter_class2 %>&nbsp;
+                    <% if (wav.interpreter_certainty2) { %>
+                      (<%= wav.interpreter_certainty2 %>%)
+                    <% } %>
+                    </td>
+                <td>
+                <% if (wav.current_status == "evaluated" || wav.current_status == "created") { %>
+                  <a class="w3-button w3-circle w3-med w3-green"><i class="fa fa-play"></i></a> &nbsp;
+                  <a class="w3-button w3-circle w3-med w3-red"><i class="fa fa-trash"></i></a> &nbsp;
+                <% } %>
+                <% if (wav.current_status == "evaluated") { %>
+                  <a class="w3-button w3-circle w3-med w3-black"><i class="fa fa-cloud-upload"></i></a>
+                <% } %>
+                </td>
+                </tr>
+              <% } %>  
+        </tbody>
+        </table>
+      
+    
+      
+  </div>
+</div>
+
+<%- include("_footer") -%>
