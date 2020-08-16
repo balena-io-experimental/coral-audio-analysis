@@ -13,5 +13,9 @@ sleep 5
 cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
 rm /usr/src/app/sound_app.db
 
+# start the fan on slow
+echo "disabled" > /sys/devices/virtual/thermal/thermal_zone0/mode
+echo 2400 > /sys/devices/platform/gpio_fan/hwmon/hwmon0/fan1_target
+
 # Start the recorder
 python3 recorder.py
