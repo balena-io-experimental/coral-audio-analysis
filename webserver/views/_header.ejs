@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="w3.css">
+<link rel="stylesheet" type="text/css" href="w3-theme-black.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -12,6 +13,38 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
 .fa-anchor,.fa-coffee {font-size:200px}
 </style>
+<script>
+function formSubmit(radioObj){
+  if(radioObj.checked){
+    document.getElementById("filForm").submit();
+  }
+}
+
+function modalShow(formID, wavID, cname, fname) {
+  
+  document.getElementById("hidWavID1").value = wavID;
+  document.getElementById("hidWavID2").value = wavID;
+  if (formID == "id01") {
+    // Upload modal
+    document.getElementById("predictClass").value = cname;
+  }  else {
+    // Delete modal
+    document.getElementById("hidWavFile").value = fname;
+  }
+  document.getElementById(formID).style.display='block'
+}
+
+function uploading() {
+  
+  document.getElementById("bt03").disabled = true;
+  document.getElementById("sp03").innerHTML = "Uploading files, Please wait...";
+  document.getElementById("img03").style.visibility = "visible";
+
+  return true;
+
+
+}
+</script>
 <body>
 
 <!-- Navbar -->
