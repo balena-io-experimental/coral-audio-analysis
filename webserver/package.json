@@ -27,6 +27,7 @@
     "ejs": "*",
     "socket.io": "*",
     "socket.io-client": "*",
-    "sqlite3": "4.2.0"
+    "sqlite3": "4.2.0",
+    "minio": "*"
   }
 }
