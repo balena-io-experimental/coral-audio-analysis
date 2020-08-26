@@ -35,3 +35,6 @@ Device Variables:
 
 `DB_PATH` - path and filename of SQLite database (default is `/data/sound_app/sound_app.db`)
 
+(webserver)
+
+`MASTER_NODE` - full UUID of the master node to upload sound files and data for re-training the model.
