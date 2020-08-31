@@ -49,7 +49,7 @@ app.use(express.urlencoded({ extended: true}))
 var labels_all = fs.readFileSync(label_file).toString('utf-8');
 var labels = labels_all.split("\n");
 
-function getName(uid, callback){
+function getReadyCount(uid, callback){
   var query = "SELECT filename FROM wav_file WHERE current_status = 'ready'";
   db.all(query, function (err, rows) {
     if(err){
@@ -60,15 +60,117 @@ function getName(uid, callback){
   });
 }
 
-function print(name) {
-  console.log("print:",name);
-  ready_rows = name;
+function cb_readyCount(rowcount) {
+  console.log("print:",rowcount);
+  ready_rows = rowcount;
 }
 
 
+function minioUpload(row, callback) {
+  //let row_id = 0;
+  let sql = "";
+  let frmErr = "NA";
+  //let filename = "";
+  let bucket = uuid.substring(0, 7);
+  //let metaData = "";
 
-function testt() {
-  return 50;
+  
+    // upload to master
+    let filename = row.filename;
+    let row_id = row.rowid;
+    let metaData = {
+      'Content-Type': 'application/octet-stream',
+      'x-amz-meta-rowid': row_id,
+      'x-amz-meta-class': row.user_class,
+      'x-amz-meta-descrip': row.user_description
+    }
+    console.log("uploading: ", filename);
+    minioClient.fPutObject(bucket, filename, wav_path + filename, metaData, function(err, etag) {
+      if (err) {
+        frmErr = frmErr + " " + filename;
+        console.log("minio error:", err);
+        }
+      console.log('File ' + filename + ' uploaded successfully.');
+      callback(row, frmErr, uploadDelete);
+    });
+  
+
+  //callback(row, frmErr, uploadDelete);
+
+}
+
+function uploadUpdate(row, frmErr, callback) {
+
+  //rows.forEach((row) => {
+    row_id = row.rowid;
+    sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (rowid = " + row_id + ")";
+    console.log("post upload SQL: ", sql);
+    db.run(sql, err => {
+      if (err) {
+        frmErr = frmErr + " " + err.message;
+      }
+    });
+  //});
+ 
+  callback(row, frmErr);
+}
+
+function uploadDelete(row, frmErr) {
+
+  //rows.forEach((row) => {
+    // delete file
+    console.log("deleting file ", row.filename);
+    fs.unlinkSync(wav_path + row.filename, function (err) {
+      if (err) {
+        frmErr = frmErr + " " + err.message;
+      }
+    });
+
+  //});
+
+}
+
+
+async function doUpload() {
+  p =  new Promise((resolve, reject) => {
+  let row_id = 0;
+  let sql = "";
+  let frmErr = "NA";
+  let filename = "";
+  let bucket = uuid.substring(0, 7);
+  let metaData = "";
+  if (master_node != "unknown") {
+    sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
+    db.all(sql, [], (err,rows) => {
+     if (err) {
+       frmErr = frmErr + err.message;
+       console.error(err.message);
+     }
+     rows.forEach((row) => {
+       console.log("leaving doUpload");
+       minioUpload(row, uploadUpdate)
+       console.log("I'm back in doUpload");
+    });
+           // });
+            //var waitTill = new Date(new Date().getTime() + 1700);
+            //while(waitTill > new Date()){}
+      if (frmErr != "NA") {
+        frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + frmErr + "</h4>";
+      } else {
+        frmErr = "<h4 style='color:green;'>File(s) successfully uploaded.</h4>";
+      }
+    
+              resolve(frmErr);
+    });  // end outer db;
+
+  } else {
+         // master node not set
+  frmErr = "<h4 style='color:red;'>Master node unknown. You must set value in balena dashboard.</h4>";
+  }
+
+  
+  });  // end promise
+  return p;
 }
 
 function getSQL(filter, srtid) {
@@ -103,21 +205,19 @@ function getSQL(filter, srtid) {
 
 // reply to home page request
 app.get('/', function (req, res) {
-  getName(0, print);
+  getReadyCount(0, cb_readyCount);
   console.log("GETSQL: ",  getSQL(req.query.filter, req.query.srtid));
   db.all(getSQL(req.query.filter, req.query.srtid), [], (err,rows) => {
     if (err) {
       return console.error(err.message);
     }
-  res.render('index', { model: rows, srtid: req.query.srtid, fil: req.query.filter, frmErr: 'NA', labels: labels, readyCount: ready_rows });
+  res.render('index', { model: rows, srtid: req.query.srtid, fil: req.query.filter, frmErr: 'NA', labels: labels, readyCount: ready_rows, rm: "false" });
   });
 });
 
-app.post('/', (req, res) => {
+app.post('/', async (req, res, next) => {
   let frmErr = "NA";
   let filename = "";
-  let bucket = uuid.substring(0, 7);
-  let metaData = "";
   console.log('Form submitted: ', req.body);
   let sql = "UPDATE wav_file SET ";
   // Validate form input
@@ -156,7 +256,7 @@ app.post('/', (req, res) => {
           }
         });
         // delete file
-        fs.unlink(wav_path + req.body.hidWavFile, function (err) {
+        fs.unlinkSync(wav_path + req.body.hidWavFile, function (err) {
           if (err) {
             frmErr = frmErr + " " + err.message;
           }
@@ -168,73 +268,20 @@ app.post('/', (req, res) => {
         }
       }  else {
         // Upload form posted
-        let row_id = 0;
-        if (master_node != "unknown") {
-          sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
-          db.all(sql, [], (err,rows) => {
-          if (err) {
-            return console.error(err.message);
-          }
-            rows.forEach((row) => {
-              // for each row in 'ready' status:
-              // upload to master
-              filename = row.filename;
-              row_id = row.rowid
-              let metaData = {
-                'Content-Type': 'application/octet-stream',
-                'x-amz-meta-rowid': row_id,
-                'x-amz-meta-class': row.user_class,
-                'x-amz-meta-descrip': row.user_description
-              }
-              minioClient.fPutObject(bucket, filename, wav_path + filename, metaData, function(err, etag) {
-              if (err) {
-                frmErr = frmErr + " " + filename;
-                return console.log(err)
-              }
-              console.log('File uploaded successfully.')
-              });
-              // update database
-               sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (rowid = " + row_id + ")";
-               console.log("Delete post upload SQL: ", sql);
-               db.run(sql, err => {
-                 if (err) {
-                   frmErr = frmErr + " " + err.message;
-                 }
-               });
-               // delete file
-               fs.unlink(wav_path + row.filename, function (err) {
-                 if (err) {
-                   frmErr = frmErr + " " + err.message;
-                 }
-               });
-
-            });
-
-            if (frmErr != "NA") {
-              frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + frmErr + "</h4>";
-            } else {
-              frmErr = "<h4 style='color:green;'>File successfully uploaded.</h4>";
-            }
-
+        try {
+          frmErr = await doUpload().catch(error => {
+            console.log("Await err:", error);
+            throw error;
           });
-
-        } else {
-         // master node not set
-         frmErr = "<h4 style='color:red;'>Master node unknown. You must set value in balena dashboard.</h4>";
+        } catch (error) {
+          console.log("caught await error");
         }
-
+        console.log("moving on...");
       }
   }
 
-  // This is redundant - TODO: use AJAX to convert to a full SPA and elimiate POSTs
-  getName(0, print);
-  db.all(getSQL(req.query.filter, req.query.srtid), [], (err,rows) => {
-    if (err) {
-      return console.error(err.message);
-    }
-  res.render('index', { model: rows, srtid: req.query.srtid, fil: req.query.filter, frmErr: frmErr, labels: labels, readyCount: ready_rows });
-  });
-})
+  res.redirect(req.get('referer'));
+});
 
 // SQLite database connection
 const db = new sqlite3.Database(db_name, err => {
