@@ -29,6 +29,8 @@ Device Variables:
 
 `CERTAINTY_THRESHOLD` - minimum percentage value of top guess to be considered a valid guess (default is 70)
 
+`AUTO_DELETE` - files with a prediction certainty above the threshold will automatically be deleted unless this is set to false. (default is true)
+
 (both)
 
 `WAV_PATH` - path where wav files are recorded (default is `/data/sound_app/`)
