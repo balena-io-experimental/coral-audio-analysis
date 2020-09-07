@@ -19,19 +19,37 @@ var master_node = env.MASTER_NODE;
 if (!master_node) {
   master_node = "unknown";
 }
-var uuid = env.RESIN_DEVICE_UUID;
 
+var minio_access_key = env.MINIO_ACCESS_KEY;
+var minio_secret_key = env.MINIO_SECRET_KEY;
+var uuid = env.RESIN_DEVICE_UUID;
+var short_uuid = uuid.substring(0, 8);
+var menu = [ short_uuid, '#', 'Master', 'https://' + master_node + '.balena-devices.com' ];
+var menu_items = env.MENU_ITEMS;
+if (menu_items) {
+  menu = JSON.parse("[" + string.split() + "]");
+}
 var ready_rows = 0;
 
 var Minio = require('minio')
+var upload_enabled = "OK";
 
-var minioClient = new Minio.Client({
-    endPoint: master_node + '.balena-devices.com',
-    port: 80,
-    useSSL: false,
-    accessKey: 'minio',
-    secretKey: 'minio123'
-});
+if (!minio_access_key || !minio_secret_key) {
+  upload_enabled = "No Minio credentials set";
+} else {
+  try {
+    var minioClient = new Minio.Client({
+      endPoint: master_node + '.balena-devices.com',
+      port: 80,
+      useSSL: false,
+      accessKey: minio_access_key,
+      secretKey: minio_secret_key
+    });
+  } catch (error) {
+    upload_enabled = "Minio error";
+    console.log("Error creating minio client: ", error);
+  }
+}
 
 // Enable HTML template middleware
 app.engine('html', require('ejs').renderFile);
@@ -46,9 +64,13 @@ app.use("/public", express.static(wav_path));
 app.use(express.urlencoded({ extended: true}))
 
 // Read in label file
-var labels_all = fs.readFileSync(label_file).toString('utf-8');
-var labels = labels_all.split("\n");
-
+try {
+  var labels_all = fs.readFileSync(label_file).toString('utf-8');
+  var labels = labels_all.split("\n");
+} catch (error) {
+  console.log("Error reading label file: ", error);
+  upload_enabled = "No label file";
+}
 function getReadyCount(uid, callback){
   var query = "SELECT filename FROM wav_file WHERE current_status = 'ready'";
   db.all(query, function (err, rows) {
@@ -61,20 +83,54 @@ function getReadyCount(uid, callback){
 }
 
 function cb_readyCount(rowcount) {
-  console.log("print:",rowcount);
+  //console.log("print:",rowcount);
   ready_rows = rowcount;
 }
 
 
-function minioUpload(row, callback) {
-  //let row_id = 0;
-  let sql = "";
-  let frmErr = "NA";
-  //let filename = "";
-  let bucket = uuid.substring(0, 7);
-  //let metaData = "";
+async function doUpload() {
+  return new Promise((resolve, reject) => {
+    let row_id = 0;
+    let sql = "";
+    let frmErr = "NA";
+    let filename = "";
+    let bucket = uuid.substring(0, 7);
+    let metaData = "";
+    if (master_node != "unknown") {
+      sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
+      db.all(sql, [], (err,rows) => {
+       if (err) {
+         frmErr = frmErr + err.message;
+         console.error(err.message);
+       }
+       for (const row of rows) {
+         doUploadTasks(row)
+         console.log("Completed one doupload2");
+       }
+       if (frmErr != "NA") {
+         frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + frmErr + "</h4>";
+       } else {
+         frmErr = "<h4 style='color:green;'>File(s) successfully uploaded.</h4>";
+       }
+       resolve(frmErr);
+      });  // end outer db;
 
-  
+    } else {
+      // master node not set
+      frmErr = "<h4 style='color:red;'>Master node unknown. You must set value in balena dashboard.</h4>";
+      reject(frmErr);
+    }
+  });  // end promise
+}
+
+
+async function doUploadTasks(row) {
+
+  let p = new Promise(async (resolve, reject) => {
+    let sql = "";
+    let frmErr = "NA";
+    let bucket = uuid.substring(0, 7);
+
     // upload to master
     let filename = row.filename;
     let row_id = row.rowid;
@@ -85,110 +141,66 @@ function minioUpload(row, callback) {
       'x-amz-meta-descrip': row.user_description
     }
     console.log("uploading: ", filename);
-    minioClient.fPutObject(bucket, filename, wav_path + filename, metaData, function(err, etag) {
-      if (err) {
-        frmErr = frmErr + " " + filename;
-        console.log("minio error:", err);
+    try {
+        url = await minioClient.fPutObject(bucket, filename, wav_path + filename, metaData);
+    } catch(error) {
+        console.log('minio upload catch');
+        resolve(10);
+    }
+    console.log('File ' + filename + ' uploaded successfully.');
+    resolve(10);
+  });
+
+  p.then((result) => {
+    console.log(result);
+    return new Promise((resolve, reject) => {
+      row_id = row.rowid;
+      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (rowid = " + row_id + ")";
+      console.log("post upload SQL: ", sql);
+      db.run(sql, err => {
+        if (err) {
+          frmErr = frmErr + " " + err.message;
         }
-      console.log('File ' + filename + ' uploaded successfully.');
-      callback(row, frmErr, uploadDelete);
-    });
-  
-
-  //callback(row, frmErr, uploadDelete);
-
-}
-
-function uploadUpdate(row, frmErr, callback) {
-
-  //rows.forEach((row) => {
-    row_id = row.rowid;
-    sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (rowid = " + row_id + ")";
-    console.log("post upload SQL: ", sql);
-    db.run(sql, err => {
+      });
+      resolve(20);
+      });
+  }).then((result) => {
+    console.log(result);
+    return new Promise((resolve, reject) => {
+      console.log("deleting file ", row.filename);
+      fs.unlinkSync(wav_path + row.filename, function (err) {
       if (err) {
         frmErr = frmErr + " " + err.message;
       }
     });
-  //});
- 
-  callback(row, frmErr);
-}
-
-function uploadDelete(row, frmErr) {
-
-  //rows.forEach((row) => {
-    // delete file
-    console.log("deleting file ", row.filename);
-    fs.unlinkSync(wav_path + row.filename, function (err) {
-      if (err) {
-        frmErr = frmErr + " " + err.message;
-      }
+    resolve(30);
     });
-
-  //});
+  }).then(result => console.log(result));
 
 }
 
 
-async function doUpload() {
-  p =  new Promise((resolve, reject) => {
-  let row_id = 0;
-  let sql = "";
-  let frmErr = "NA";
-  let filename = "";
-  let bucket = uuid.substring(0, 7);
-  let metaData = "";
-  if (master_node != "unknown") {
-    sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
-    db.all(sql, [], (err,rows) => {
-     if (err) {
-       frmErr = frmErr + err.message;
-       console.error(err.message);
-     }
-     rows.forEach((row) => {
-       console.log("leaving doUpload");
-       minioUpload(row, uploadUpdate)
-       console.log("I'm back in doUpload");
-    });
-           // });
-            //var waitTill = new Date(new Date().getTime() + 1700);
-            //while(waitTill > new Date()){}
-      if (frmErr != "NA") {
-        frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + frmErr + "</h4>";
-      } else {
-        frmErr = "<h4 style='color:green;'>File(s) successfully uploaded.</h4>";
-      }
-    
-              resolve(frmErr);
-    });  // end outer db;
-
-  } else {
-         // master node not set
-  frmErr = "<h4 style='color:red;'>Master node unknown. You must set value in balena dashboard.</h4>";
-  }
-
-  
-  });  // end promise
-  return p;
-}
 
 function getSQL(filter, srtid) {
-  //console.log("here", filter, srtid);
-  var sql = "SELECT rowid, timestamp_created, interpreter_class, interpreter_class2, interpreter_certainty, interpreter_certainty2, current_status, filename FROM wav_file";
-  //console.log("S1:",sql);
-  if (filter != "all" || (!filter)) {
-    if (filter === undefined || filter == '') {
-      // do nothing
-      //console.log(" ");
-    } else {
-    sql = sql + " WHERE current_status = '" + filter + "'";
-    }
+
+  var sql = "SELECT rowid, timestamp_created, interpreter_class, interpreter_class2, interpreter_certainty, interpreter_certainty2, current_status, filename, threshold FROM wav_file";
+
+  switch (filter) {
+    case "filter1":
+      sql = sql + " WHERE current_status = 'evaluated' OR current_status = 'ready' OR current_status = 'created'";
+      break;
+    case "filter2":
+      sql = sql + " WHERE current_status = 'uploaded'";
+      break;
+    case "filter3":
+      sql = sql + " WHERE current_status = 'deleted'";
+      break;
+    default:
+      sql = sql + " WHERE current_status = 'evaluated' OR current_status = 'ready' OR current_status = 'created'";
   }
- //console.log("S2",sql);
   switch (srtid) {
     case "1":
-      sql = sql + " ORDER BY timestamp_created";
+      sql = sql + " ORDER BY timestamp_created DESC";
       break;
     case "2":
       sql = sql + " ORDER BY current_status";
@@ -196,22 +208,21 @@ function getSQL(filter, srtid) {
     case "3":
       sql = sql + " ORDER BY interpreter_class";
       break;
+    default:
+      sql = sql + " ORDER BY timestamp_created DESC";
   }
-  //console.log("SQL3: ", sql);
   return sql;
-
-
 }
 
 // reply to home page request
 app.get('/', function (req, res) {
   getReadyCount(0, cb_readyCount);
-  console.log("GETSQL: ",  getSQL(req.query.filter, req.query.srtid));
+  console.log("GETSQL for home page render: ",  getSQL(req.query.filter, req.query.srtid));
   db.all(getSQL(req.query.filter, req.query.srtid), [], (err,rows) => {
     if (err) {
       return console.error(err.message);
     }
-  res.render('index', { model: rows, srtid: req.query.srtid, fil: req.query.filter, frmErr: 'NA', labels: labels, readyCount: ready_rows, rm: "false" });
+  res.render('index', { model: rows, srtid: req.query.srtid, fil: req.query.filter, frmErr: 'NA', labels: labels, readyCount: ready_rows, rm: "false", upload_enabled: upload_enabled, menuItems: menu });
   });
 });
 
@@ -268,14 +279,15 @@ app.post('/', async (req, res, next) => {
         }
       }  else {
         // Upload form posted
-        try {
-          frmErr = await doUpload().catch(error => {
-            console.log("Await err:", error);
-            throw error;
-          });
-        } catch (error) {
-          console.log("caught await error");
-        }
+        await doUpload()
+        //try {
+          //frmErr = await doUpload().catch(error => {
+            //console.log("Await err:", error);
+            //throw error;
+          //});
+        //} catch (error) {
+          //console.log("caught await error");
+        //}
         console.log("moving on...");
       }
   }
