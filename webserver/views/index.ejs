@@ -118,17 +118,26 @@
     <table width="100%"><tr><td>
       Filter by:
       <form id="filForm">
-        <input id="all" class="w3-radio" type="radio" onchange="formSubmit(this)" name="filter" value="all"<%if (fil == "all" || (!fil) ) {%> checked<% } %>>
-        <label>All</label> &nbsp;&nbsp;&nbsp;
-        <input id="evaluated" class="w3-radio" type="radio" onchange="formSubmit(this)" name="filter" value="evaluated"<%if (fil == "evaluated") {%> checked<% } %>>
-        <label>Evaluated</label> &nbsp;&nbsp;
-        <input id="deleted" class="w3-radio" type="radio" onchange="formSubmit(this)" name="filter" value="deleted"<%if (fil == "deleted") {%> checked<% } %>>
+        <input id="filter1" class="w3-radio" type="radio" onchange="formSubmit(this)" name="filter" value="filter1"<%if (fil == "filter1" || (!fil) ) {%> checked<% } %>>
+        <label>Not Uploaded</label> &nbsp;&nbsp;&nbsp;
+        <input id="filter2" class="w3-radio" type="radio" onchange="formSubmit(this)" name="filter" value="filter2"<%if (fil == "filter2") {%> checked<% } %>>
+        <label>Uploaded</label> &nbsp;&nbsp;
+        <input id="filter3" class="w3-radio" type="radio" onchange="formSubmit(this)" name="filter" value="filter3"<%if (fil == "filter3") {%> checked<% } %>>
         <label>Deleted</label>
         <input id="hidSrt" type="hidden" name="srtid" value="<%= srtid %>">
       </form>
     </td><td style="text-align:right;">
       Files ready for upload: <%= readyCount %> <br />
-      <button class="w3-button w3-blue w3-padding-large w3-small w3-margin-top" onclick="modalShow('id03', 0, 'none', 'none')">Upload</button>
+      <button id="btnUploadAll" 
+         <% if (readyCount == 0 || upload_enabled != 'OK') { %>
+           class="w3-button w3-blue w3-padding-large w3-small w3-margin-top w3-disabled" style="box-shadow: 0px 0px 0px #888888;"
+         <% } else { %> 
+           class="w3-button w3-blue w3-padding-large w3-small w3-margin-top" style="box-shadow: 1px 1px 1px #888888;"
+         <% } %>
+         onclick="modalShow('id03', 0, 'none', 'none')">Upload</button>
+         <% if (upload_enabled != 'OK') { %>
+           <br><span style="font-size:75%;color:#993300">(<%= upload_enabled %>)</span>
+         <% } %>
     </td></tr></table>
 
     <br><br>
@@ -140,11 +149,17 @@
         <tbody>
                 <% for (const wav of model) { %>
         <tr>
-                <td style="vertical-align: middle;"><%= wav.timestamp_created %></td>
+                <td style="vertical-align: middle;"><div class="tooltip"><%= wav.timestamp_created %><span class="tooltiptext"><%= wav.filename.substring(8) %></span></div></td>
                 <td style="vertical-align: middle;"><%= wav.current_status %></td>
                 <td style="vertical-align: middle;"><%= wav.interpreter_class %>&nbsp;
-                    <% if (wav.interpreter_certainty) { %> 
+                    <% if (wav.interpreter_certainty) { %>
+                      <% if (wav.interpreter_certainty >= wav.threshold) { %>
+                        <span style="font-weight: bold;">
+                      <% } %> 
                       (<%= wav.interpreter_certainty %>%)
+                      <% if (wav.interpreter_certainty >= wav.threshold) { %>
+                        </span>
+                      <% } %>
                     <% } %>
                     </td>
                 <td style="vertical-align: middle;"><%= wav.interpreter_class2 %>&nbsp;
@@ -154,7 +169,7 @@
                     </td>
                 <td style="vertical-align: bottom;">
                 
-                <% if (wav.current_status == "evaluated" || wav.current_status == "created") { %>
+                <% if (wav.current_status != "deleted" && wav.current_status != "uploaded") { %>
                   <audio controls><source src="/public/<%= wav.filename %>"></audio> &nbsp;
                 <% } %>
                 </td>
