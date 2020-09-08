@@ -89,7 +89,7 @@ function cb_readyCount(rowcount) {
 
 
 async function doUpload() {
-  return new Promise((resolve, reject) => {
+  return new Promise( async (resolve, reject) => {
     let row_id = 0;
     let sql = "";
     let frmErr = "NA";
@@ -98,13 +98,13 @@ async function doUpload() {
     let metaData = "";
     if (master_node != "unknown") {
       sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
-      db.all(sql, [], (err,rows) => {
+      db.all(sql, [], async (err,rows) => {
        if (err) {
          frmErr = frmErr + err.message;
          console.error(err.message);
        }
        for (const row of rows) {
-         doUploadTasks(row)
+         await doUploadTasks(row)
          console.log("Completed one doupload2");
        }
        if (frmErr != "NA") {
@@ -151,7 +151,7 @@ async function doUploadTasks(row) {
     resolve(10);
   });
 
-  p.then((result) => {
+  return p.then((result) => {
     console.log(result);
     return new Promise((resolve, reject) => {
       row_id = row.rowid;
