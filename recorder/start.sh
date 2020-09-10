@@ -7,7 +7,10 @@ bash /etc/runonce.d/00-disable-tsched.sh
 # Set Coral Dev board speaker to 50%
 amixer -c 0 set Speaker 50% y
 
-sleep 5
+sleep 3
+
+# display audio info
+python3 audio_info.py
 
 # Copy database to shared volume if if doesn't exist already (-n)
 cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
