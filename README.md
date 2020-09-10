@@ -28,7 +28,7 @@ Use the device variables below to customize the behavior of the application:
 
 `INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input) - You can see the audio details in the "recorder" log window when the container starts.
 
-`FAN_SPEED` - set a value in rpm (average range is 2000 - 8000) to run the board fan at a constant speed. Without this set, the fan is supposed to run automatically at 65 C.
+`FAN_SPEED` - set a value in rpm (average range is 2000 - 8000) to run the board fan at a constant speed. Without this set, the fan is supposed to run automatically at 65 C. (Note that any fan noise will be picked up by the on-board microphone and cause significantly less accurate predictions by the classifier)
 
 `WAV_FILE_LIMIT` - total size of all wav files saved to disk in bytes before a warning is issued (default is 6000000000)
 
