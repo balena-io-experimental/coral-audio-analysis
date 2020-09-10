@@ -1,36 +1,29 @@
-const sqlite3 = require("sqlite3").verbose(); var express = require('express'); var app = express(); const {env} = require('process'); var fs = require('fs');
+const sqlite3 = require("sqlite3").verbose();
+const express = require('express');
+const app = express();
+const {env} = require('process');
+const fs = require('fs');
 
 app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
 
-var wav_path = env.WAV_PATH;
-if (!wav_path) {
-  wav_path = "/data/sound_app/";
-}
-var db_name = env.DB_PATH;
-if (!db_name) {
-  db_name = "/data/sound_app/sound_app.db";
-}
-var label_file = env.LABEL_FILE;
-if (!label_file) {
-  label_file = "/data/sound_app/labels.txt";
-}
-var master_node = env.MASTER_NODE;
-if (!master_node) {
-  master_node = "unknown";
-}
+let wav_path = env.WAV_PATH || "/data/sound_app/";
+let db_name = env.DB_PATH || "/data/sound_app/sound_app.db";
+var label_file = env.LABEL_FILE || "/data/sound_app/labels.txt";
+var master_node = env.MASTER_NODE || "unknown";
 
-var minio_access_key = env.MINIO_ACCESS_KEY;
-var minio_secret_key = env.MINIO_SECRET_KEY;
-var uuid = env.RESIN_DEVICE_UUID;
-var short_uuid = uuid.substring(0, 8);
-var menu = [ short_uuid, '#', 'Master', 'https://' + master_node + '.balena-devices.com' ];
-var menu_items = env.MENU_ITEMS;
+
+let minio_access_key = env.MINIO_ACCESS_KEY;
+let minio_secret_key = env.MINIO_SECRET_KEY;
+let uuid = env.RESIN_DEVICE_UUID;
+let short_uuid = uuid.substring(0, 8);
+let menu = [ short_uuid, '#', 'Master', `https://${master_node}.balena-devices.com` ];
+let menu_items = env.MENU_ITEMS;
 if (menu_items) {
   menu = JSON.parse("[" + string.split() + "]");
 }
 var ready_rows = 0;
-
+var form_errors = "NA";
 var Minio = require('minio')
 var upload_enabled = "OK";
 
@@ -93,6 +86,7 @@ async function doUpload() {
     let row_id = 0;
     let sql = "";
     let frmErr = "NA";
+    form_errors = "";
     let filename = "";
     let bucket = uuid.substring(0, 7);
     let metaData = "";
@@ -100,15 +94,15 @@ async function doUpload() {
       sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
       db.all(sql, [], async (err,rows) => {
        if (err) {
-         frmErr = frmErr + err.message;
+         form_errors = formErrors + ", " + err.message;
          console.error(err.message);
        }
        for (const row of rows) {
          await doUploadTasks(row)
-         console.log("Completed one doupload2");
+         console.log("Completed one doUploadTasks");
        }
        if (frmErr != "NA") {
-         frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + frmErr + "</h4>";
+         frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + form_errors + "</h4>";
        } else {
          frmErr = "<h4 style='color:green;'>File(s) successfully uploaded.</h4>";
        }
@@ -128,7 +122,6 @@ async function doUploadTasks(row) {
 
   let p = new Promise(async (resolve, reject) => {
     let sql = "";
-    let frmErr = "NA";
     let bucket = uuid.substring(0, 7);
 
     // upload to master
@@ -145,6 +138,7 @@ async function doUploadTasks(row) {
         url = await minioClient.fPutObject(bucket, filename, wav_path + filename, metaData);
     } catch(error) {
         console.log('minio upload catch');
+        form_errors = form_errors + ", " + error.message
         resolve(10);
     }
     console.log('File ' + filename + ' uploaded successfully.');
@@ -159,7 +153,7 @@ async function doUploadTasks(row) {
       console.log("post upload SQL: ", sql);
       db.run(sql, err => {
         if (err) {
-          frmErr = frmErr + " " + err.message;
+          form_errors = form_errors + ", " + err.message;
         }
       });
       resolve(20);
@@ -170,7 +164,7 @@ async function doUploadTasks(row) {
       console.log("deleting file ", row.filename);
       fs.unlinkSync(wav_path + row.filename, function (err) {
       if (err) {
-        frmErr = frmErr + " " + err.message;
+        form_errors = form_errors + ", " + err.message;
       }
     });
     resolve(30);
@@ -179,6 +173,78 @@ async function doUploadTasks(row) {
 
 }
 
+async function buildTable(req) {
+  return new Promise( async (resolve, reject) => {
+    let my_table = "";
+    let row_html = "";
+    db.all(getSQL(req.query.filter, req.query.srtid), [], async (err,rows) => {
+      //console.log("buildTable SQL: ", getSQL(req.query.filter, req.query.srtid));
+      if (err) {
+        return console.error(err.message);
+      }
+      for (const row of rows) {
+        row_html = await buildTableHTML(row);
+        my_table = my_table + row_html
+        //console.log("table row: ", row.filename);
+      }  // end for
+    resolve(my_table);
+    });  // end db
+  });  // end promise
+}
+
+async function buildTableHTML(row) {
+  return new Promise(async (resolve, reject) => {
+
+    let my_table = "";
+    my_table = my_table + "<tr>" +
+    "<td style='vertical-align: middle;'><div class='tooltip'>" + row.timestamp_created + "<span class='tooltiptext'>" +  row.filename.substring(8) + "</span></div></td>" +
+    "<td style='vertical-align: middle;'>" + row.current_status + "</td><td style='vertical-align: middle;'>"
+    if (row.interpreter_class !== null) {
+      my_table = my_table + row.interpreter_class;
+    } else {
+      my_table = my_table + "&nbsp;";
+    }
+
+    if (row.interpreter_certainty !== null) {
+      if (row.interpreter_certainty >= row.threshold) {
+        my_table = my_table + "<span style='font-weight: bold;'> (" + row.interpreter_certainty + "%)</span>";
+      } else {
+        my_table = my_table + " (" + row.interpreter_certainty + "%)";
+      }
+    }
+
+    my_table = my_table + "</td><td style='vertical-align: middle;'>";
+    if (row.interpreter_class2 !== null) {
+      my_table = my_table + row.interpreter_class2
+    } else {
+       my_table = my_table +  "&nbsp;"
+    }
+
+    if (row.interpreter_certainty2 !== null) {
+      my_table = my_table + " (" + row.interpreter_certainty2 + "%)"
+    }
+
+    my_table = my_table + "</td><td style='vertical-align: bottom;'>"
+
+    if (row.current_status != "deleted" && row.current_status != "uploaded") {
+      my_table = my_table + "<audio controls><source src='/public/" + row.filename + "'></audio> &nbsp;"
+    }
+
+    my_table = my_table + "</td><td style='vertical-align: middle;'>"
+
+    if (row.current_status != "deleted" && row.current_status != "uploaded") {
+      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-red' onclick=\"modalShow('id02'," + row.rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-trash'></i></a> &nbsp;&nbsp;"
+    }
+
+    if (row.current_status == "evaluated") {
+      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-blue' onclick=\"modalShow('id01'," + row.rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-cloud-upload'></i></a>"
+    }
+
+    my_table = my_table + "</td></tr>"
+
+    resolve(my_table);
+    });
+}
 
 
 function getSQL(filter, srtid) {
@@ -226,6 +292,16 @@ app.get('/', function (req, res) {
   });
 });
 
+// reply to table request for AJAX calls
+app.get('/table', async function (req, res) {
+  let my_table = "";
+  console.log("Get table");
+  my_table = await buildTable(req);
+  //console.log("my_table: ", my_table);
+  console.log("table moving on...");
+  res.send(my_table);
+});
+
 app.post('/', async (req, res, next) => {
   let frmErr = "NA";
   let filename = "";
@@ -249,9 +325,9 @@ app.post('/', async (req, res, next) => {
         });
         // upload file
         if (frmErr != "NA") {
-          frmErr = "<h4 style='color:red;'>Error uploading file: " + frmErr + "</h4>";
+          frmErr = "<h4 style='color:red;'>Error tagging file for upload: " + frmErr + "</h4>";
         } else {
-          frmErr = "<h4 style='color:green;'>File successfully uploaded.</h4>";
+          frmErr = "<h4 style='color:green;'>File successfully tagged for upload.</h4>";
         }
     }  // end else blank description
 
@@ -279,20 +355,19 @@ app.post('/', async (req, res, next) => {
         }
       }  else {
         // Upload form posted
-        await doUpload()
-        //try {
-          //frmErr = await doUpload().catch(error => {
-            //console.log("Await err:", error);
-            //throw error;
-          //});
-        //} catch (error) {
-          //console.log("caught await error");
-        //}
+        frmErr = await doUpload()
         console.log("moving on...");
       }
   }
 
-  res.redirect(req.get('referer'));
+  getReadyCount(0, cb_readyCount);
+  console.log("GETSQL for home page render after POST: ",  getSQL(req.query.filter, req.query.srtid));
+  db.all(getSQL(req.query.filter, req.query.srtid), [], (err,rows) => {
+    if (err) {
+      return console.error(err.message);
+    }
+  res.render('index', { model: rows, srtid: req.query.srtid, fil: req.query.filter, frmErr: frmErr, labels: labels, readyCount: ready_rows, rm: "false", upload_enabled: upload_enabled, menuItems: menu });
+  });
 });
 
 // SQLite database connection
