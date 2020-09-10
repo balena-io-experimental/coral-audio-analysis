@@ -13,9 +13,14 @@ sleep 5
 cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
 rm /usr/src/app/sound_app.db
 
-# start the fan on slow
-echo "disabled" > /sys/devices/virtual/thermal/thermal_zone0/mode
-echo 2400 > /sys/devices/platform/gpio_fan/hwmon/hwmon0/fan1_target
+# run the fan based on FAN_SPEED variable
+if [[ -z $FAN_SPEED ]]; then
+  echo "FAN_SPEED value not set. Using defaults."
+else
+  echo "disabled" > /sys/devices/virtual/thermal/thermal_zone0/mode
+  echo $FAN_SPEED > /sys/devices/platform/gpio_fan/hwmon/hwmon0/fan1_target
+  echo "FAN_SPEED set to "$FAN_SPEED
+fi
 
 # Start the recorder
 python3 recorder.py
