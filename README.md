@@ -1,29 +1,31 @@
 # coral-audio-analysis
-Coral Edge TPU project for analyzing noise pollution using the Coral Dev board - work in progress...
+Coral Edge TPU project for analyzing noise pollution using the Coral Dev board or a Raspberry Pi 4 with the Edge TPU.
 
-**Highlights:**
+This application 
+Deploy to your device using the button below or through the CLI.
 
-**recorder** - files for container that continuously listens through the mic and records audio files in 4 second chunks if they are above a certain volume threshold.
+**Overview:**
 
-**classifier** - files for container that looks for newly recorded wav files and anaylzes them using the model. If they are not a reasonable match, they are saved for later analysis and possible upload to the master training node.
+**recorder** - continuously listens through the mic and records audio files in 4 second chunks if they are above a certain volume threshold.
 
-**sound_edgetpu.tflite** - Tensorflow model in the classifier folder trained on the Urban Sound 8k dataset of 8,000+ sound files in 10 classes. This model has been converted to Tensorflow Lite and integer post-quantized on the internal layers so they will run on the Edge TPU. The input and output tensors are still float32. 70% of the model should execute on the Edge TPU.
+**classifier** - looks for newly recorded wav files and anaylzes them using the model. If they are not a reasonable match, they are saved for later analysis and possible upload to the master training node.
+
+**sound_edgetpu.tflite** - Tensorflow model in the classifier folder trained on the [Urban Sound 8k dataset](https://urbansounddataset.weebly.com/) of 8,000+ sound files in 10 classes. This model has been converted to Tensorflow Lite and integer post-quantized on the internal layers so they will run on the Edge TPU. The input and output tensors are still float32. 70% of the model should execute on the Edge TPU.
 
 **webserver** - Express webserver that runs on port 80 to provide a view into the sound app activity, listen to files and decide which ones to upload. 
 
-**samples** - some wav files that can be used for testing purposes. Not uploaded to device any longer.
-
-Device Variables:
+To see the sounds that have been detected by the device, as well as the classification, browse to the device's IP or public URL if enabled.
+Use the device variables below to customize the behavior of the application:
 
 (Recorder)
-
-`WAV_FILE_LIMIT` - total size of all wav files saved to disk in bytes before a warning is issued (default is 6000000000)
 
 `WAV_REC_THRESHOLD` - minimum intensity of audio reaching mic that triggers a recording start (default is 2000)
 
 `INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input) - You can see the audio details in the "recorder" log window when the container starts.
 
 `FAN_SPEED` - set a value in rpm (average range is 2000 - 8000) to run the board fan at a constant speed. Without this set, the fan is supposed to run automatically at 65 C.
+
+`WAV_FILE_LIMIT` - total size of all wav files saved to disk in bytes before a warning is issued (default is 6000000000)
 
 (Classifier)
 
@@ -33,7 +35,7 @@ Device Variables:
 
 `AUTO_DELETE` - files with a prediction certainty above the `CERTAINTY_THRESHOLD` will automatically be deleted unless this is set to false. (default is true)
 
-(both)
+(all)
 
 `WAV_PATH` - path where wav files are recorded (default is `/data/sound_app/`)
 
