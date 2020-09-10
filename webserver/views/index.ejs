@@ -21,7 +21,7 @@
       <input type="hidden" name="hidWavID1" value="0" id="hidWavID1">     
     </div>  
     <div class="w3-section">      
-      <input class="w3-input" type="text" name="txtDecription">
+      <input class="w3-input" type="text" name="txtDescription">
       <label>Description</label>
     </div>
   <div class="w3-section">      
@@ -142,11 +142,11 @@
 
     <br><br>
 
-        <table class="w3-table w3-striped w3-bordered">
+        <table class="w3-table w3-striped w3-bordered" id="tblMain">
         <thead>
         <tr class="w3-theme"><th><a href="?srtid=1&filter=<%= fil %>">File Created</a></th><th><a href="?srtid=2&filter=<%= fil %>">Status</a></th><th><a href="?srtid=3&filter=<%= fil %>">Top Guess</a></th><th>2nd Guess</th><th>Play</th><th>Action</th></tr>
         </thead>
-        <tbody>
+        <tbody id="tblBody">
                 <% for (const wav of model) { %>
         <tr>
                 <td style="vertical-align: middle;"><div class="tooltip"><%= wav.timestamp_created %><span class="tooltiptext"><%= wav.filename.substring(8) %></span></div></td>
@@ -174,8 +174,10 @@
                 <% } %>
                 </td>
                 <td style="vertical-align: middle;">
-                <% if (wav.current_status == "evaluated") { %>
+                <% if (wav.current_status != "deleted" && wav.current_status != "uploaded") { %>
                   <a class="w3-button w3-circle w3-small w3-red" onclick="modalShow('id02',<%= wav.rowid %>, '<%= wav.interpreter_class %>', '<%= wav.filename %>')"><i class="fa fa-trash"></i></a> &nbsp;
+                <% } %>
+                <% if (wav.current_status == "evaluated") { %>
                   <a class="w3-button w3-circle w3-small w3-blue" onclick="modalShow('id01',<%= wav.rowid %>, '<%= wav.interpreter_class %>', '<%= wav.filename %>')"><i class="fa fa-cloud-upload"></i></a>
                 <% } %>
                 </td>
