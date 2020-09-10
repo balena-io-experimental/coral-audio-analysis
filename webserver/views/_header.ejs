@@ -43,7 +43,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
   visibility: visible;
 }
 </style>
-<script>
+<script type="text/javascript">
 function formSubmit(radioObj){
   if(radioObj.checked){
     document.getElementById("filForm").submit();
@@ -81,6 +81,28 @@ function uploading() {
 
 
 }
+
+window.onload = function() {
+
+  setTimeout(refreshTable, 30000);
+         
+}
+
+function refreshTable() {
+  var xhttp;
+ 
+  xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("tblBody").innerHTML = this.responseText;
+      setTimeout(refreshTable, 30000);
+    }
+  }
+  let querystring = window.location.search;
+  xhttp.open("GET", "table" + querystring, true);
+  xhttp.send();
+}
+
 </script>
 <body>
 
