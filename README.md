@@ -1,8 +1,8 @@
 # coral-audio-analysis
 Coral Edge TPU project for analyzing noise pollution using the Coral Dev board or a Raspberry Pi 4 with the Edge TPU.
+An optional master node will soon be available that has an S3-compatible object store which can receive manually-classified audio files from the nodes in order to re-train and improve the model for all devices in the fleet.
 
-This application 
-Deploy to your device using the button below or through the CLI.
+Use the button below to deploy this application to your device or use the CLI.
 
 **Overview:**
 
