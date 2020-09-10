@@ -7,7 +7,7 @@ Coral Edge TPU project for analyzing noise pollution using the Coral Dev board -
 
 **classifier** - files for container that looks for newly recorded wav files and anaylzes them using the model. If they are not a reasonable match, they are saved for later analysis and possible upload to the master training node.
 
-**qmodel3a8p2_edgetpu.tflite** - Tensorflow model in the classifier folder trained on the Urban Sound 8k dataset of 8,000+ sound files in 10 classes. This model has been converted to Tensorflow Lite and integer post-quantized on the internal layers so they will run on the Edge TPU. The input and output tensors are still float32. 70% of the model should execute on the Edge TPU.
+**sound_edgetpu.tflite** - Tensorflow model in the classifier folder trained on the Urban Sound 8k dataset of 8,000+ sound files in 10 classes. This model has been converted to Tensorflow Lite and integer post-quantized on the internal layers so they will run on the Edge TPU. The input and output tensors are still float32. 70% of the model should execute on the Edge TPU.
 
 **webserver** - Express webserver that runs on port 80 to provide a view into the sound app activity, listen to files and decide which ones to upload. 
 
