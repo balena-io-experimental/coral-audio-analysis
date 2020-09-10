@@ -21,7 +21,9 @@ Device Variables:
 
 `WAV_REC_THRESHOLD` - minimum intensity of audio reaching mic that triggers a recording start (default is 2000)
 
-`INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input)
+`INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input) - You can see the audio details in the "recorder" log window when the container starts.
+
+`FAN_SPEED` - set a value in rpm (average range is 2000 - 8000) to run the board fan at a constant speed. Without this set, the fan is supposed to run automatically at 65 C.
 
 (Classifier)
 
@@ -29,7 +31,7 @@ Device Variables:
 
 `CERTAINTY_THRESHOLD` - minimum percentage value of top guess to be considered a valid guess (default is 70)
 
-`AUTO_DELETE` - files with a prediction certainty above the threshold will automatically be deleted unless this is set to false. (default is true)
+`AUTO_DELETE` - files with a prediction certainty above the `CERTAINTY_THRESHOLD` will automatically be deleted unless this is set to false. (default is true)
 
 (both)
 
@@ -39,4 +41,8 @@ Device Variables:
 
 (webserver)
 
-`MASTER_NODE` - full UUID of the master node to upload sound files and data for re-training the model.
+`MASTER_NODE` - full UUID of the master node to upload sound files and data for re-training the model. The "Upload" button will be disabled if this is not set.
+
+`MINIO_ACCESS_KEY` - access key for master node's Minio server, the data store for uploading sound files. 
+
+`MINIO_SECRET_KEY` - secret key for master node's Minio server, the data store for uploading sound files. 
