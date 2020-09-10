@@ -7,6 +7,8 @@ An optional master node will soon be available that has an S3-compatible object 
 
 Use the button below to deploy this application to your device or use the CLI.
 
+[![](https://www.balena.io/deploy.png)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/balena-io-playground/coral-audio-analysis)
+
 **Overview:**
 
 **recorder** - continuously listens through the mic and records audio files in 4 second chunks if they are above a certain volume threshold.
