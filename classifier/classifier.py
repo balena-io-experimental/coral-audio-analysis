@@ -10,8 +10,9 @@ from datetime import datetime, timedelta
 
 DB_FILE = os.getenv("DB_PATH", "/data/sound_app/sound_app.db")  # path and filename of database
 WAV_PATH = os.getenv("WAV_PATH", "/data/sound_app/") # folder with wav files
-MODEL_FILE = os.getenv("MODEL_FILE", "/data/sound_app/qmodel3a8p2_edgetpu.tflite") # path and filename  with model file
+MODEL_FILE = os.getenv("MODEL_FILE", "/data/sound_app/sound_edgetpu.tflite") # path and filename  with model file
 LABEL_FILE = os.getenv("LABEL_FILE", "/data/sound_app/labels.txt") #path and filename of associated model class names
+AUTO_DELETE = os.getenv("AUTO_DELETE", "true") #if equal to true, files above the thershold will automatically be deleted 
 ct = os.getenv("CERTAINTY_THRESHOLD", "70") # minimum value to consider prediction to be acceptable
 if ct.isnumeric():
     CERTAINTY_THRESHOLD = int(ct)
@@ -92,17 +93,27 @@ while True:
             print("2nd guess: ", sound_names[ind[1]], " (",second_certainty,")")
 
             if top_certainty >= CERTAINTY_THRESHOLD:
-                print("Top guess above threshold, updating database and deleting sound file.")
-                sql = """UPDATE wav_file SET timestamp_evaluated='{0}',
-                      timestamp_deleted='{1}',
-                      interpreter_class='{2}',
-                      interpreter_certainty={3},
-                      interpreter_class2='{4}',
-                      interpreter_certainty2={5},
-                      current_status='deleted'
-                      WHERE rowid = {6}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, row[0])
-                # Delete file
-                os.remove(WAV_PATH + row[1])
+                if AUTO_DELETE == "true":
+                    print("Top guess above threshold, updating database and deleting sound file.")
+                    sql = """UPDATE wav_file SET timestamp_evaluated='{0}',
+                          timestamp_deleted='{1}',
+                          interpreter_class='{2}',
+                          interpreter_certainty={3},
+                          interpreter_class2='{4}',
+                          interpreter_certainty2={5},
+                          current_status='deleted'
+                          WHERE rowid = {6}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, row[0])
+                    # Delete file
+                    os.remove(WAV_PATH + row[1])
+                else:
+                    print("Top guess above threshold, updating database, auto-delete OFF.")
+                    sql = """UPDATE wav_file SET timestamp_evaluated='{0}',
+                          interpreter_class='{1}',
+                          interpreter_certainty={2},
+                          interpreter_class2='{3}',
+                          interpreter_certainty2={4},
+                          current_status='evaluated'
+                          WHERE rowid = {5}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, row[0])
 
             else:
                 print("Top guess below threshold, saving file for further review.")
