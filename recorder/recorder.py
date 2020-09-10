@@ -8,8 +8,7 @@ import time
 import math
 import sqlite3
 
-# see https://github.com/jeysonmc/python-google-speech-scripts/blob/master/stt_google.py
-# nothing
+# based on https://github.com/jeysonmc/python-google-speech-scripts/blob/master/stt_google.py
 
 DB_PATH = os.getenv("DB_PATH", "/data/sound_app/sound_app.db")  # path and filename of database
 
@@ -21,6 +20,8 @@ if wf.isnumeric():
 else:
     WAV_FILE_LIMIT = 6000000000
 
+UUID = os.environ.get('RESIN_DEVICE_UUID')[:7] # First seven chars of device UUID
+
 # Microphone stream config.
 CHUNK = 1024  # CHUNKS of bytes to read each time from mic
 FORMAT = pyaudio.paInt16
@@ -28,6 +29,7 @@ CHANNELS = 1
 RATE = 44100
 th = os.getenv("WAV_REC_THRESHOLD", "2000")  # The threshold intensity that defines silence
                   # and noise signal (an int. lower than THRESHOLD is silence).
+                  # based on peak ampltude in each chunk of audio data
 if th.isnumeric():
     THRESHOLD = int(th)
 else:
@@ -35,7 +37,7 @@ else:
 
 SILENCE_LIMIT = 1  # Silence limit in seconds. The max ammount of seconds where
                    # only silence is recorded. When this time passes the
-                   # recording is saved and evealuated.
+                   # recording is saved and evaluated.
 
 PREV_AUDIO = 0.5  # Previous audio (in seconds) to prepend. When noise
                   # is detected, how much of previously recorded audio is
@@ -105,11 +107,8 @@ def listen_for_speech(threshold=THRESHOLD, num_phrases=-1):
     n = num_phrases
     response = []
     file_split = 0
-    #print("OK")
     while (num_phrases == -1 or n > 0):
-        print("OK1")
-        cur_data = stream.read(CHUNK)
-        print("OK2")
+        cur_data = stream.read(CHUNK, exception_on_overflow = False)
         slid_win.append(math.sqrt(abs(audioop.avg(cur_data, 4))))
         #print("slid_win length: ", len(slid_win))
         #print("prev_audio length: ", len(prev_audio))
@@ -162,7 +161,7 @@ def save_speech(data, p):
     """ Saves mic data to WAV file. Returns filename of saved
         file """
 
-    filename = 'output_'+str(int(time.time()))
+    filename = UUID + '_'+str(int(time.time()))
     # writes data to WAV file
     data = b''.join(data)
     wf = wave.open(WAV_FILE_PATH + filename + '.wav', 'wb')
