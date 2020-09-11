@@ -99,7 +99,7 @@ async function doUpload() {
        }
        for (const row of rows) {
          await doUploadTasks(row)
-         console.log("Completed one doUploadTasks");
+         //console.log("Completed one doUploadTasks");
        }
        if (frmErr != "NA") {
          frmErr = "<h4 style='color:red;'>One or more errors during file upload: " + form_errors + "</h4>";
@@ -141,7 +141,7 @@ async function doUploadTasks(row) {
         form_errors = form_errors + ", " + error.message
         resolve(10);
     }
-    console.log('File ' + filename + ' uploaded successfully.');
+    //console.log('File ' + filename + ' uploaded successfully.');
     resolve(10);
   });
 
@@ -159,9 +159,9 @@ async function doUploadTasks(row) {
       resolve(20);
       });
   }).then((result) => {
-    console.log(result);
+    //console.log(result);
     return new Promise((resolve, reject) => {
-      console.log("deleting file ", row.filename);
+      //console.log("deleting file ", row.filename);
       fs.unlinkSync(wav_path + row.filename, function (err) {
       if (err) {
         form_errors = form_errors + ", " + err.message;
@@ -283,7 +283,7 @@ function getSQL(filter, srtid) {
 // reply to home page request
 app.get('/', function (req, res) {
   getReadyCount(0, cb_readyCount);
-  console.log("GETSQL for home page render: ",  getSQL(req.query.filter, req.query.srtid));
+  //console.log("GETSQL for home page render: ",  getSQL(req.query.filter, req.query.srtid));
   db.all(getSQL(req.query.filter, req.query.srtid), [], (err,rows) => {
     if (err) {
       return console.error(err.message);
@@ -295,17 +295,17 @@ app.get('/', function (req, res) {
 // reply to table request for AJAX calls
 app.get('/table', async function (req, res) {
   let my_table = "";
-  console.log("Get table");
+  //console.log("Get table");
   my_table = await buildTable(req);
   //console.log("my_table: ", my_table);
-  console.log("table moving on...");
+  //console.log("table moving on...");
   res.send(my_table);
 });
 
 app.post('/', async (req, res, next) => {
   let frmErr = "NA";
   let filename = "";
-  console.log('Form submitted: ', req.body);
+  //console.log('Form submitted: ', req.body);
   let sql = "UPDATE wav_file SET ";
   // Validate form input
   if (req.body.hidFormName == "id01") {
@@ -317,7 +317,7 @@ app.post('/', async (req, res, next) => {
         // update db here
         const heard = [req.body.predictClass, req.body.txtDescription, req.body.txtNotes, req.body.hidWavID1];
         sql = sql + "user_class = ?, user_description = ?, user_notes = ?, current_status = 'ready', timestamp_ready = datetime('now') WHERE (rowid = ?)";
-        console.log("Upload SQL: ", sql);
+        //console.log("Upload SQL: ", sql);
         db.run(sql, heard, err => {
           if (err) {
             frmErr = err.message;
@@ -336,7 +336,7 @@ app.post('/', async (req, res, next) => {
         // delete file form posted
         // update db
         sql = sql + "timestamp_deleted = datetime('now'), current_status = 'deleted' WHERE (rowid = " + req.body.hidWavID2 + ")";
-        console.log("Delete SQL: ", sql);
+        //console.log("Delete SQL: ", sql);
         db.run(sql, err => {
           if (err) {
             frmErr = err.message;
@@ -356,12 +356,12 @@ app.post('/', async (req, res, next) => {
       }  else {
         // Upload form posted
         frmErr = await doUpload()
-        console.log("moving on...");
+        //console.log("moving on...");
       }
   }
 
   getReadyCount(0, cb_readyCount);
-  console.log("GETSQL for home page render after POST: ",  getSQL(req.query.filter, req.query.srtid));
+  //console.log("GETSQL for home page render after POST: ",  getSQL(req.query.filter, req.query.srtid));
   db.all(getSQL(req.query.filter, req.query.srtid), [], (err,rows) => {
     if (err) {
       return console.error(err.message);
