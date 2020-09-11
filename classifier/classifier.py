@@ -65,11 +65,14 @@ conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 top_certainty = 0
 second_certainty = 0
+sleep_msg = 1
 
 while True:
     cur.execute("SELECT rowid, filename FROM wav_file WHERE current_status='created'")
     recs = cur.fetchall()
-    print("Fetched {0} rows from database.".format(len(recs)))
+    if len(recs) > 0:
+        print("Fetched {0} rows from database.".format(len(recs)))
+        sleep_msg = 1
     for row in recs:
         print("Evaluating file {0}{1} (id {2})".format(WAV_PATH, row[1], row[0]))
         # do eval here
@@ -135,5 +138,7 @@ while True:
 
     cur.close()
     cur = conn.cursor()
-    print("No unevaluated files left in the queue, sleeping 2 seconds...")
+    if sleep_msg == 1:
+        print("No unevaluated files left in the queue, waiting...")
+        sleep_msg = 0
     time.sleep(2)
