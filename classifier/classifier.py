@@ -22,8 +22,6 @@ else:
 # Load labels from a file
 sound_names = [line.rstrip('\n') for line in open(LABEL_FILE)]
 print("Loaded {0} labels for model.".format(len(sound_names)))
-#sound_names = ["air conditioner","car horn","children playing","dog bark","drilling","engine idling",
-#               "gun shot","jackhammer","siren","street music"]
 
 # just extract the features
 def extract_features_only(filename):
