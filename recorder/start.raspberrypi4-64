@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sleep 3
+
+# display audio info
+python3 audio_info.py
+
+# Copy database to shared volume if if doesn't exist already (-n)
+cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
+rm /usr/src/app/sound_app.db
+
+
+# Start the recorder
+python3 recorder.py
