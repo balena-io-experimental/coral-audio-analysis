@@ -69,7 +69,7 @@ while True:
     cur.execute("SELECT rowid, filename FROM wav_file WHERE current_status='created'")
     recs = cur.fetchall()
     if len(recs) > 0:
-        print("Fetched {0} rows from database.".format(len(recs)))
+        print("Found {0} unevaluated file(s).".format(len(recs)))
         sleep_msg = 1
     for row in recs:
         print("Evaluating file {0}{1} (id {2})".format(WAV_PATH, row[1], row[0]))
@@ -90,8 +90,8 @@ while True:
             ind = ind[::-1]
             top_certainty = int(tflite_model_predictions[0,ind[0]] * 100)
             second_certainty = int(tflite_model_predictions[0,ind[1]] * 100)
-            print("Top guess: ", sound_names[ind[0]], " (",top_certainty,")")
-            print("2nd guess: ", sound_names[ind[1]], " (",second_certainty,")")
+            print("Top guess: ", sound_names[ind[0]], " (",top_certainty,"%)")
+            print("2nd guess: ", sound_names[ind[1]], " (",second_certainty,"%)")
 
             if top_certainty >= CERTAINTY_THRESHOLD:
                 if AUTO_DELETE == "true":
