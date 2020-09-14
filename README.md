@@ -36,6 +36,8 @@ Use the device variables below to customize the behavior of the application:
 
 `LABEL_FILE` - path and filename of text file with ordered list of classes for associated model (default is `/data/sound_app/labels.txt`)
 
+`MODEL_FILE` - path and filename of Edge TPU model file. (default is `/data/sound_app/sound_edgetpu.tflite`)
+
 `CERTAINTY_THRESHOLD` - minimum percentage value of top guess to be considered a valid guess (default is 70)
 
 `AUTO_DELETE` - files with a prediction certainty above the `CERTAINTY_THRESHOLD` will automatically be deleted unless this is set to false. (default is true)
