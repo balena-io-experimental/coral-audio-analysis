@@ -1,20 +1,26 @@
 import pyaudio
 import json
+from datetime import datetime
 
 audio = pyaudio.PyAudio()
 
-
-print("----------------------record device list---------------------")
+outp ="Audio Information as of {0}\n".format(datetime.now())
+outp = outp + "----------------------record device list---------------------\n"
 info = audio.get_host_api_info_by_index(0)
 numdevices = info.get('deviceCount')
 for i in range(0, numdevices):
         if (audio.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
-            print("Input Device id ", i, " - ", audio.get_device_info_by_host_api_device_index(0, i).get('name'))
+            outp = outp + "Input Device index {0} - {1}\n".format(i, audio.get_device_info_by_host_api_device_index(0, i).get('name'))
 
-print("-------------------------------------------------------------")
+outp = outp + "-------------------------------------------------------------\n"
 
-print("   ")
+outp = outp + "   \n"
 
-print("------------------default input device --------------------- ")
+outp = outp + "------------------default input device --------------------- \n"
 info = audio.get_default_input_device_info()
-print(json.dumps(info, indent=4, separators=(". ", " = ")))
+outp = outp + json.dumps(info, indent=4, separators=(". ", " = ")) + "\n"
+
+print(outp)
+file1 = open("/data/sound_app/audio_info.txt", "w")
+file1.writelines(outp)
+file1.close()
