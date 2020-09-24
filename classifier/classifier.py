@@ -43,7 +43,10 @@ def extract_features_only(filename):
 # that's compiled for the Edge TPU, it sends that operation
 # to the Edge TPU instead of the CPU
 
-interpreter = tflite.Interpreter(model_path=MODEL_FILE, experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+try:
+    interpreter = tflite.Interpreter(model_path=MODEL_FILE, experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+except ValueError:
+    print("Interpreter error. Is Edge TPU plugged in?")
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 interpreter.allocate_tensors()
