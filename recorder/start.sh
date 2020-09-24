@@ -5,7 +5,12 @@ bash /etc/runonce.d/00-disable-tsched.sh
 /usr/bin/pulseaudio --daemonize=no &
 
 # Copy database to shared volume if if doesn't exist already (-n)
-cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
+if [[ -z $DB_PATH ]]; then
+  cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
+else
+  dest=$DB_PATH"/sound_app.db"
+  cp -n /usr/src/app/sound_app.db "$dest"
+fi
 
 # Give audio time to start up before continuing
 sleep 8
