@@ -14,10 +14,14 @@ services:
     privileged: true
     volumes:
       - 'shared-data:/data/sound_app'
+    depends_on:
+      - recorder
   webserver:
     restart: always
     build: ./webserver
     volumes:
       - 'shared-data:/data/sound_app'
+    depends_on:
+      - classifier
     ports:
       - 80:80
