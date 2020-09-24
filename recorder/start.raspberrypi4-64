@@ -6,8 +6,16 @@ sleep 3
 python3 audio_info.py
 
 # Copy database to shared volume if if doesn't exist already (-n)
-cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
-rm /usr/src/app/sound_app.db
+if [[ -z $DB_PATH ]]; then
+  cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
+else
+  if [ ! -f $DB_PATH ] ; then
+    parent_path=$(dirname “$DB_PATH”)
+    mkdir -p “$parent_path”
+    chmod 755 “$parent_path”
+    cp -n /usr/src/app/sound_app.db $DB_PATH
+  fi
+fi
 
 
 # Start the recorder
