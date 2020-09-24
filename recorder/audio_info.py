@@ -4,7 +4,7 @@ from datetime import datetime
 
 audio = pyaudio.PyAudio()
 
-outp ="Audio Information as of {0}\n".format(datetime.now())
+outp ="Audio Information as of {0}\n\n".format(datetime.now())
 outp = outp + "----------------------record device list---------------------\n"
 info = audio.get_host_api_info_by_index(0)
 numdevices = info.get('deviceCount')
