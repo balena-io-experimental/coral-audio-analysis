@@ -241,11 +241,11 @@ async function buildTableHTML(row) {
     my_table = my_table + "</td><td style='vertical-align: middle;'>"
 
     if (row.current_status != "deleted" && row.current_status != "uploaded") {
-      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-red' onclick=\"modalShow('id02'," + row.my_rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-trash'></i></a> &nbsp;&nbsp;"
+      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-red' onclick=\"modalShow('id02'," + row.my_rowid + ", '" +  row.interpreter_class_id + "', '" + row.filename + "')\"><i class='fa fa-trash'></i></a> &nbsp;&nbsp;"
     }
 
     if (row.current_status == "evaluated") {
-      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-blue' onclick=\"modalShow('id01'," + row.my_rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-cloud-upload'></i></a>"
+      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-blue' onclick=\"modalShow('id01'," + row.my_rowid + ", '" +  row.interpreter_class_id + "', '" + row.filename + "')\"><i class='fa fa-cloud-upload'></i></a>"
     }
 
     my_table = my_table + "</td></tr>"
@@ -385,8 +385,8 @@ app.post('/', async (req, res, next) => {
     } else {
         // upload details form posted
         // update db here
-        const heard = [req.body.predictClass, req.body.txtDescription, req.body.txtNotes, req.body.hidWavID1];
-        sql = sql + "user_class = ?, user_description = ?, user_notes = ?, current_status = 'ready', timestamp_ready = datetime('now') WHERE (my_rowid = ?)";
+        const heard = [req.body.predictClass, labels[req.body.predictClass], req.body.txtDescription, req.body.txtNotes, req.body.hidWavID1];
+        sql = sql + "user_class_id = ?, user_class = ?, user_description = ?, user_notes = ?, current_status = 'ready', timestamp_ready = datetime('now') WHERE (rowid = ?)";
         //console.log("Upload SQL: ", sql);
         db.run(sql, heard, err => {
           if (err) {
