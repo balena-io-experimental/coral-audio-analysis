@@ -98,7 +98,7 @@ async function doUpload() {
     let bucket = uuid.substring(0, 7);
     let metaData = "";
     if (master_node != "unknown") {
-      sql = "SELECT rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
+      sql = "SELECT my_rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
       db.all(sql, [], async (err,rows) => {
        if (err) {
          form_errors = formErrors + ", " + err.message;
@@ -133,7 +133,7 @@ async function doUploadTasks(row) {
 
     // upload to master
     let filename = row.filename;
-    let row_id = row.rowid;
+    let row_id = row.my_rowid;
     let metaData = {
       'Content-Type': 'application/octet-stream',
       'x-amz-meta-rowid': row_id,
@@ -155,8 +155,8 @@ async function doUploadTasks(row) {
   return p.then((result) => {
     console.log(result);
     return new Promise((resolve, reject) => {
-      row_id = row.rowid;
-      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (rowid = " + row_id + ")";
+      row_id = row.my_rowid;
+      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (my_rowid = " + row_id + ")";
       console.log("post upload SQL: ", sql);
       db.run(sql, err => {
         if (err) {
@@ -241,11 +241,11 @@ async function buildTableHTML(row) {
     my_table = my_table + "</td><td style='vertical-align: middle;'>"
 
     if (row.current_status != "deleted" && row.current_status != "uploaded") {
-      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-red' onclick=\"modalShow('id02'," + row.rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-trash'></i></a> &nbsp;&nbsp;"
+      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-red' onclick=\"modalShow('id02'," + row.my_rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-trash'></i></a> &nbsp;&nbsp;"
     }
 
     if (row.current_status == "evaluated") {
-      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-blue' onclick=\"modalShow('id01'," + row.rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-cloud-upload'></i></a>"
+      my_table = my_table + "<a class='w3-button w3-circle w3-small w3-blue' onclick=\"modalShow('id01'," + row.my_rowid + ", '" +  row.interpreter_class + "', '" + row.filename + "')\"><i class='fa fa-cloud-upload'></i></a>"
     }
 
     my_table = my_table + "</td></tr>"
@@ -257,7 +257,7 @@ async function buildTableHTML(row) {
 
 function getSQL(filter, srtid) {
 
-  var sql = "SELECT rowid, timestamp_created, interpreter_class, interpreter_class2, interpreter_certainty, interpreter_certainty2, current_status, filename, threshold FROM wav_file";
+  var sql = "SELECT my_rowid, timestamp_created, interpreter_class, interpreter_class2, interpreter_certainty, interpreter_certainty2, current_status, filename, threshold FROM wav_file";
 
   switch (filter) {
     case "filter1":
@@ -325,7 +325,7 @@ app.post('/', async (req, res, next) => {
         // upload details form posted
         // update db here
         const heard = [req.body.predictClass, req.body.txtDescription, req.body.txtNotes, req.body.hidWavID1];
-        sql = sql + "user_class = ?, user_description = ?, user_notes = ?, current_status = 'ready', timestamp_ready = datetime('now') WHERE (rowid = ?)";
+        sql = sql + "user_class = ?, user_description = ?, user_notes = ?, current_status = 'ready', timestamp_ready = datetime('now') WHERE (my_rowid = ?)";
         //console.log("Upload SQL: ", sql);
         db.run(sql, heard, err => {
           if (err) {
@@ -344,7 +344,7 @@ app.post('/', async (req, res, next) => {
       if (req.body.hidFormName == "id02") {
         // delete file form posted
         // update db
-        sql = sql + "timestamp_deleted = datetime('now'), current_status = 'deleted' WHERE (rowid = " + req.body.hidWavID2 + ")";
+        sql = sql + "timestamp_deleted = datetime('now'), current_status = 'deleted' WHERE (my_rowid = " + req.body.hidWavID2 + ")";
         //console.log("Delete SQL: ", sql);
         db.run(sql, err => {
           if (err) {
