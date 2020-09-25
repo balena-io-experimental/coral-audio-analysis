@@ -98,7 +98,7 @@ async function doUpload() {
     let bucket = uuid.substring(0, 7);
     let metaData = "";
     if (master_node != "unknown") {
-      sql = "SELECT my_rowid, filename, user_class, user_description FROM wav_file WHERE current_status = 'ready'";
+      sql = "SELECT my_rowid, filename, user_class, user_class_id, user_description FROM wav_file WHERE current_status = 'ready'";
       db.all(sql, [], async (err,rows) => {
        if (err) {
          form_errors = formErrors + ", " + err.message;
@@ -132,7 +132,7 @@ async function doUploadTasks(row) {
     let bucket = uuid.substring(0, 7);
 
     // upload to master
-    let filename = row.filename;
+    var filename = bucket + "-" + row.user_class_id + "-" + row.filename;
     let row_id = row.my_rowid;
     let metaData = {
       'Content-Type': 'application/octet-stream',
@@ -156,7 +156,7 @@ async function doUploadTasks(row) {
     console.log(result);
     return new Promise((resolve, reject) => {
       row_id = row.my_rowid;
-      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded' WHERE (my_rowid = " + row_id + ")";
+      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded', remote_filename = '" + row.remote_filename + "' WHERE (my_rowid = " + row_id + ")";
       console.log("post upload SQL: ", sql);
       db.run(sql, err => {
         if (err) {
