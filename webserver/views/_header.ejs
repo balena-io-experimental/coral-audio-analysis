@@ -94,7 +94,9 @@ function refreshTable() {
   xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("tblBody").innerHTML = this.responseText;
+      rt = this.responseText
+      document.getElementById("tblBody").innerHTML = rt.substring(6, rt.length);
+      document.getElementById("topTitle").innerHTML = "Sound Recordings (" + rt.substring(0, 6).trim() + ")";
       setTimeout(refreshTable, 30000);
     }
   }
