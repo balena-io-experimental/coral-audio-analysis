@@ -58,13 +58,19 @@ app.use("/public", express.static(wav_path));
 app.use(express.urlencoded({ extended: true}))
 
 // Read in label file
+var labels = [];
 try {
-  var labels_all = fs.readFileSync(label_file).toString('utf-8');
-  var labels = labels_all.split("\n");
+  fs.readFileSync(label_file).toString().split("\n").forEach(function(line, index, arr) {
+    if (index === arr.length - 1 && line === "") { return; }
+    labels.push(line);
+  });
 } catch (error) {
   console.log("Error reading label file: ", error);
   upload_enabled = "No label file";
 }
+console.log("Read in", labels.length, "labels:");
+console.log(labels);
+
 function getReadyCount(uid, callback){
   var query = "SELECT filename FROM wav_file WHERE current_status = 'ready'";
   db.all(query, function (err, rows) {
