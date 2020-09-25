@@ -23,6 +23,7 @@ if (menu_items) {
   menu = JSON.parse("[" + string.split() + "]");
 }
 var ready_rows = 0;
+var table_rows = 0;
 var form_errors = "NA";
 var Minio = require('minio')
 var upload_enabled = "OK";
@@ -182,6 +183,7 @@ async function buildTable(req) {
       if (err) {
         return console.error(err.message);
       }
+      table_rows = rows.length;
       for (const row of rows) {
         row_html = await buildTableHTML(row);
         my_table = my_table + row_html
@@ -299,7 +301,8 @@ app.get('/table', async function (req, res) {
   my_table = await buildTable(req);
   //console.log("my_table: ", my_table);
   //console.log("table moving on...");
-  res.send(my_table);
+  let rr = "      " + table_rows;  // 6 spaces
+  res.send(rr.substring(rr.length - 6, rr.length) + my_table);
 });
 
 app.post('/', async (req, res, next) => {
