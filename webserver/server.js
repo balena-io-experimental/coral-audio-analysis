@@ -254,6 +254,60 @@ async function buildTableHTML(row) {
     });
 }
 
+async function buildExport(req) {
+  return new Promise( async (resolve, reject) => {
+    let my_table = "";
+    let row_html = "";
+    let sql = "SELECT * FROM wav_file";
+    if (req.query.startid) {
+      sql = sql + " WHERE my_rowid >= " + req.query.startid;
+    }
+    sql = sql + " ORDER BY my_rowid";
+    db.all(sql, [], async (err,rows) => {
+      console.log("buildExport SQL: ", sql);
+      if (err) {
+        return console.error(err.message);
+      }
+      my_table = `{  "files": [`
+      for (const row of rows) {
+        row_html = await buildExportJSON(row);
+        my_table = my_table + row_html
+        console.log("table row: ", row.filename);
+      }  // end for
+      my_table = my_table + "]  }"
+    resolve(my_table);
+    });  // end db
+  });  // end promise
+}
+
+async function buildExportJSON(row) {
+  return new Promise(async (resolve, reject) => {
+
+    let my_table = "{";
+    my_table = my_table + '"my_rowid": "' + row.my_rowid + '",'
+    my_table = my_table + '"current_status": "' + row.current_status + '",'
+    my_table = my_table + '"timestamp_created": "' + row.timestamp_created + '",'
+    my_table = my_table + '"threshold": "' + row.threshold + '",'
+    my_table = my_table + '"interpreter_class": "' + row.interpreter_class + '",'
+    my_table = my_table + '"interpreter_class2": "' + row.interpreter_class2 + '",'
+    my_table = my_table + '"interpreter_certainty": "' + row.interpreter_certainty + '",'
+    my_table = my_table + '"interpreter_certainty2": "' + row.interpreter_certainty2 + '",'
+    my_table = my_table + '"interpreter_class_id": "' + row.interpreter_class_id + '",'
+    my_table = my_table + '"interpreter_class2_id": "' + row.interpreter_class2_id + '",'
+    my_table = my_table + '"certainty_threshold": "' + row.certainty_threshold + '",'
+    my_table = my_table + '"classify_duration": "' + row.classify_duration + '",'
+    my_table = my_table + '"timestamp_uploaded": "' + row.timestamp_uploaded + '",'
+    my_table = my_table + '"remote_filename": "' + row.remote_filename + '",'
+    my_table = my_table + '"user_class": "' + row.user_class + '",'
+    my_table = my_table + '"user_class_id": "' + row.user_class_id + '",'
+    my_table = my_table + '"user_description": "' + row.user_description + '",'
+    my_table = my_table + '"user_notes": "' + row.user_notes + '",'
+
+    my_table = my_table + "}"
+
+    resolve(my_table);
+    });
+}
 
 function getSQL(filter, srtid) {
 
@@ -309,6 +363,13 @@ app.get('/table', async function (req, res) {
   //console.log("table moving on...");
   let rr = "      " + table_rows;  // 6 spaces
   res.send(rr.substring(rr.length - 6, rr.length) + my_table);
+});
+
+// reply to export request for JSON export
+app.get('/export', async function (req, res) {
+  let my_table = "";
+  my_table = await buildExport(req);
+  res.send(my_table);
 });
 
 app.post('/', async (req, res, next) => {
