@@ -13,9 +13,9 @@
       <label>Select Class: </label>
       <select name="predictClass" id="predictClass">
         <% for(let i = 0; i < labels.length; i++) { %>
-        <option value="<%= labels[i] %>"><%= labels[i] %></option>
+        <option value="<%= i %>"><%= labels[i] %></option>
         <% } %>
-        <option value="other">other (provide description)</option>
+        <option value="99">other (provide description)</option>
       </select>
       <input type="hidden" name="hidFormName" value="id01">
       <input type="hidden" name="hidWavID1" value="0" id="hidWavID1">     
