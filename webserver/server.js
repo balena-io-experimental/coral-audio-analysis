@@ -205,7 +205,7 @@ async function buildTableHTML(row) {
 
     let my_table = "";
     my_table = my_table + "<tr>" +
-    "<td style='vertical-align: middle;'><div class='tooltip'>" + row.timestamp_created + "<span class='tooltiptext'>" +  row.filename.substring(8) + "</span></div></td>" +
+    "<td style='vertical-align: middle;'><div class='tooltip'>" + row.timestamp_created + "<span class='tooltiptext'>" +  row.filename + "</span></div></td>" +
     "<td style='vertical-align: middle;'>" + row.current_status + "</td><td style='vertical-align: middle;'>"
     if (row.interpreter_class !== null) {
       my_table = my_table + row.interpreter_class;
