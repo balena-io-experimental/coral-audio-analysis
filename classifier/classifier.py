@@ -105,8 +105,11 @@ while True:
                           interpreter_certainty={3},
                           interpreter_class2='{4}',
                           interpreter_certainty2={5},
-                          current_status='deleted'
-                          WHERE rowid = {6}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, row[0])
+                          current_status='deleted',
+                          interpreter_class_id={6},
+                          interpreter_class2_id={7},
+                          certainty_threshold={8}
+                          WHERE rowid = {9}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
                     # Delete file
                     os.remove(WAV_PATH + row[1])
                 else:
@@ -116,8 +119,11 @@ while True:
                           interpreter_certainty={2},
                           interpreter_class2='{3}',
                           interpreter_certainty2={4},
-                          current_status='evaluated'
-                          WHERE rowid = {5}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, row[0])
+                          current_status='evaluated',
+                          interpreter_class_id={5},
+                          interpreter_class2_id={6},
+                          certainty_threshold={7}
+                          WHERE rowid = {8}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
 
             else:
                 print("Top guess below threshold, saving file for further review.")
@@ -127,8 +133,11 @@ while True:
                      interpreter_certainty={2},
                      interpreter_class2='{3}',
                      interpreter_certainty2={4},
-                     current_status='evaluated'
-                     WHERE rowid = {5}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, row[0])
+                     current_status='evaluated',
+                     interpreter_class_id={5},
+                     interpreter_class2_id={6},
+                     certainty_threshold={7}
+                     WHERE rowid = {8}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
 
         else:
             print("Wav file not found, continuing to next file...")
