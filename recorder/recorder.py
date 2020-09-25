@@ -167,7 +167,7 @@ def save_speech(data, p):
     """ Saves mic data to WAV file. Returns filename of saved
         file """
 
-    filename = UUID + '_'+str(int(time.time()))
+    filename = str(int(time.time()))
     # writes data to WAV file
     data = b''.join(data)
     wf = wave.open(WAV_FILE_PATH + filename + '.wav', 'wb')
