@@ -311,7 +311,7 @@ async function buildExportJSON(row) {
 
 function getSQL(filter, srtid) {
 
-  var sql = "SELECT my_rowid, timestamp_created, interpreter_class, interpreter_class2, interpreter_certainty, interpreter_certainty2, current_status, filename, threshold FROM wav_file";
+  var sql = "SELECT my_rowid, timestamp_created, interpreter_class, interpreter_class_id, interpreter_class2, interpreter_certainty, interpreter_certainty2, current_status, filename, threshold FROM wav_file";
 
   switch (filter) {
     case "filter1":
