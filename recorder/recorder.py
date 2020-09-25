@@ -13,7 +13,7 @@ import sqlite3
 DB_PATH = os.getenv("DB_PATH", "/data/sound_app/sound_app.db")  # path and filename of database
 
 # FYI: Database schema below, only one table
-# CREATE TABLE wav_file(timestamp_created TEXT, timestamp_evaluated TEXT, timestamp_deleted TEXT, interpreter_class TEXT, interpreter_certainty INT,
+# CREATE TABLE wav_file(my_rowid INTEGER PRIMARY KEY, timestamp_created TEXT, timestamp_evaluated TEXT, timestamp_deleted TEXT, interpreter_class TEXT, interpreter_certainty INT,
 #   interpreter_class2 TEXT, interpreter_certainty2 INT, system_notes TEXT, user_description TEXT, user_notes TEXT, 
 #   timestamp_uploaded TEXT, current_status TEXT, filename TEXT, threshold INT, avg_intensity REAL, classify_duration TEXT, 
 #   user_class TEXT, timestamp_ready TEXT, remote_filename TEXT, upload_msg TEXT, certainty_threshold INT, t3 TEXT, t4 TEXT, n1 INT, n2 INT,
