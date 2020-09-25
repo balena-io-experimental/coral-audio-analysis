@@ -69,7 +69,7 @@ second_certainty = 0
 sleep_msg = 1
 
 while True:
-    cur.execute("SELECT rowid, filename FROM wav_file WHERE current_status='created'")
+    cur.execute("SELECT my_rowid, filename FROM wav_file WHERE current_status='created'")
     recs = cur.fetchall()
     if len(recs) > 0:
         print("Found {0} unevaluated file(s).".format(len(recs)))
@@ -109,7 +109,7 @@ while True:
                           interpreter_class_id={6},
                           interpreter_class2_id={7},
                           certainty_threshold={8}
-                          WHERE rowid = {9}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
+                          WHERE my_rowid = {9}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
                     # Delete file
                     os.remove(WAV_PATH + row[1])
                 else:
@@ -123,7 +123,7 @@ while True:
                           interpreter_class_id={5},
                           interpreter_class2_id={6},
                           certainty_threshold={7}
-                          WHERE rowid = {8}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
+                          WHERE my_rowid = {8}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
 
             else:
                 print("Top guess below threshold, saving file for further review.")
@@ -137,11 +137,11 @@ while True:
                      interpreter_class_id={5},
                      interpreter_class2_id={6},
                      certainty_threshold={7}
-                     WHERE rowid = {8}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
+                     WHERE my_rowid = {8}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
 
         else:
             print("Wav file not found, continuing to next file...")
-            sql = "UPDATE wav_file SET current_status='missing' WHERE rowid = {0}".format(row[0])
+            sql = "UPDATE wav_file SET current_status='missing' WHERE my_rowid = {0}".format(row[0])
 
         conn.execute(sql)
         conn.commit()
