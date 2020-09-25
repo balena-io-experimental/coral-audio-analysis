@@ -176,7 +176,7 @@
         <tbody id="tblBody">
                 <% for (const wav of model) { %>
         <tr>
-                <td style="vertical-align: middle;"><div class="tooltip"><%= wav.timestamp_created %><span class="tooltiptext"><%= wav.filename.substring(8) %></span></div></td>
+                <td style="vertical-align: middle;"><div class="tooltip"><%= wav.timestamp_created %><span class="tooltiptext"><%= wav.filename %></span></div></td>
                 <td style="vertical-align: middle;"><%= wav.current_status %></td>
                 <td style="vertical-align: middle;"><%= wav.interpreter_class %>&nbsp;
                     <% if (wav.interpreter_certainty) { %>
