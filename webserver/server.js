@@ -127,12 +127,13 @@ async function doUpload() {
 
 async function doUploadTasks(row) {
 
+  var filename = "";
   let p = new Promise(async (resolve, reject) => {
     let sql = "";
     let bucket = uuid.substring(0, 7);
 
     // upload to master
-    var filename = bucket + "-" + row.user_class_id + "-" + row.filename;
+    filename = bucket + "-" + row.user_class_id + "-" + row.filename;
     let row_id = row.my_rowid;
     let metaData = {
       'Content-Type': 'application/octet-stream',
@@ -142,10 +143,10 @@ async function doUploadTasks(row) {
     }
     console.log("uploading: ", filename);
     try {
-        url = await minioClient.fPutObject(bucket, filename, wav_path + filename, metaData);
+        url = await minioClient.fPutObject(bucket, filename, wav_path + row.filename, metaData);
     } catch(error) {
-        console.log('minio upload catch');
-        form_errors = form_errors + ", " + error.message
+        console.log('minio upload error: ' + error.message);
+        form_errors = form_errors + ", " + error.message;
         resolve(10);
     }
     //console.log('File ' + filename + ' uploaded successfully.');
@@ -156,7 +157,7 @@ async function doUploadTasks(row) {
     console.log(result);
     return new Promise((resolve, reject) => {
       row_id = row.my_rowid;
-      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded', remote_filename = '" + row.remote_filename + "' WHERE (my_rowid = " + row_id + ")";
+      sql = "UPDATE wav_file SET timestamp_deleted = datetime('now'), timestamp_uploaded = datetime('now'), current_status = 'uploaded', remote_filename = '" + filename + "' WHERE (my_rowid = " + row_id + ")";
       console.log("post upload SQL: ", sql);
       db.run(sql, err => {
         if (err) {
