@@ -3,6 +3,7 @@ import wave
 import audioop
 from collections import deque
 import os
+from os import path
 from pathlib import Path
 import time
 import math
@@ -66,6 +67,10 @@ def append_db(filename, max_intensity):
     Writes record to database for new sound file recording
     """
 
+    if not(path.exists(DB_PATH)):
+        print("Database not found. Sleeping 5 seconds awaiting db copy.")
+        time.sleep(5)
+        
     try:
         conn = sqlite3.connect(DB_PATH)
     except Error as e:
