@@ -8,15 +8,12 @@ bash /etc/runonce.d/00-disable-tsched.sh
 DB_PATH=${DB_PATH:-/data/sound_app/sound_app.db}
 
 # Copy database to shared volume if if doesn't exist already (-n)
-if [[ -z $DB_PATH ]]; then
-  cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
-else
-  if [ ! -f $DB_PATH ] ; then
-    parent_path=$(dirname “$DB_PATH”)
-    mkdir -p “$parent_path”
-    chmod 755 “$parent_path”
-    cp -n /usr/src/app/sound_app.db $DB_PATH
-  fi
+if [[ ! -s "$DB_PATH" ]] ; then
+  echo "$DB_PATH does not exist or is zero-length, reinstalling"
+  parent_path=$(dirname "$DB_PATH")
+  mkdir -p "$parent_path"
+  chmod 755 "$parent_path"
+  cp -n /usr/src/app/sound_app.db "$DB_PATH"
 fi
 
 # Give audio time to start up before continuing
