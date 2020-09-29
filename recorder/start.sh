@@ -4,6 +4,9 @@
 bash /etc/runonce.d/00-disable-tsched.sh
 /usr/bin/pulseaudio --daemonize=no &
 
+# Set DB_PATH to default if not set
+DB_PATH=${DB_PATH:-/data/sound_app/sound_app.db}
+
 # Copy database to shared volume if if doesn't exist already (-n)
 if [[ -z $DB_PATH ]]; then
   cp -n /usr/src/app/sound_app.db /data/sound_app/sound_app.db
