@@ -87,7 +87,8 @@ while True:
             start_time = datetime.now()
             interpreter.invoke()
             end_time = datetime.now()
-            print("Interpreter duration: ", str(end_time - start_time))
+            duration = str(end_time - start_time)
+            print("Interpreter duration: ", duration)
             tflite_model_predictions = interpreter.get_tensor(output_details[0]['index'])
             #print(tflite_model_predictions[0])
             # get the indices of the top 2 predictions, invert into descending order
@@ -111,8 +112,9 @@ while True:
                           current_status='deleted',
                           interpreter_class_id={6},
                           interpreter_class2_id={7},
-                          certainty_threshold={8}
-                          WHERE my_rowid = {9}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
+                          certainty_threshold={8},
+                          classify_duration={9}
+                          WHERE my_rowid = {10}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
                     # Delete file
                     os.remove(WAV_PATH + row[1])
                 else:
@@ -125,8 +127,9 @@ while True:
                           current_status='evaluated',
                           interpreter_class_id={5},
                           interpreter_class2_id={6},
-                          certainty_threshold={7}
-                          WHERE my_rowid = {8}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
+                          certainty_threshold={7},
+                          classify_duration={8}
+                          WHERE my_rowid = {9}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
 
             else:
                 print("Top guess below threshold, saving file for further review.")
@@ -139,8 +142,9 @@ while True:
                      current_status='evaluated',
                      interpreter_class_id={5},
                      interpreter_class2_id={6},
-                     certainty_threshold={7}
-                     WHERE my_rowid = {8}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, row[0])
+                     certainty_threshold={7},
+                     classify_duration={8}
+                     WHERE my_rowid = {9}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
 
         else:
             print("Wav file not found, continuing to next file...")
