@@ -80,8 +80,11 @@ def append_db(filename, max_intensity):
     sql = """INSERT INTO 'wav_file'('filename', 'timestamp_created', 'current_status', 'threshold', 'avg_intensity')
         VALUES(?, ?, ?, ?, ?);"""
     data_tuple = (filename, time.strftime('%Y-%m-%d %H:%M:%S'), 'created', THRESHOLD, max_intensity)
-    cur.execute(sql, data_tuple)
-    conn.commit()
+    try:
+        cur.execute(sql, data_tuple)
+        conn.commit()
+    except Exception as e:
+        print("Error inserting into database: ", e)
 
 def listen_for_speech(threshold=THRESHOLD, num_phrases=-1):
     """

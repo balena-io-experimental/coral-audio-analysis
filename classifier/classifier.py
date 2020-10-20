@@ -69,8 +69,11 @@ second_certainty = 0
 sleep_msg = 1
 
 while True:
-    cur.execute("SELECT my_rowid, filename FROM wav_file WHERE current_status='created'")
-    recs = cur.fetchall()
+    try:
+        cur.execute("SELECT my_rowid, filename FROM wav_file WHERE current_status='created'")
+        recs = cur.fetchall()
+    except Exception as e:
+        print("[ERROR] %s".format(e))
     if len(recs) > 0:
         print("Found {0} unevaluated file(s).".format(len(recs)))
         sleep_msg = 1
