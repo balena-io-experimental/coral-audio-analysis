@@ -113,7 +113,7 @@ while True:
                           interpreter_class_id={6},
                           interpreter_class2_id={7},
                           certainty_threshold={8},
-                          classify_duration={9}
+                          classify_duration='{9}'
                           WHERE my_rowid = {10}""".format(str(start_time), str(datetime.now()), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
                     # Delete file
                     os.remove(WAV_PATH + row[1])
@@ -128,7 +128,7 @@ while True:
                           interpreter_class_id={5},
                           interpreter_class2_id={6},
                           certainty_threshold={7},
-                          classify_duration={8}
+                          classify_duration='{8}'
                           WHERE my_rowid = {9}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
 
             else:
@@ -143,7 +143,7 @@ while True:
                      interpreter_class_id={5},
                      interpreter_class2_id={6},
                      certainty_threshold={7},
-                     classify_duration={8}
+                     classify_duration='{8}'
                      WHERE my_rowid = {9}""".format(time.strftime('%Y-%m-%d %H:%M:%S'), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
 
         else:
