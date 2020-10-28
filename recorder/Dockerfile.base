@@ -101,11 +101,6 @@ RUN \
 RUN \
     find /lib/modules -type f -name 'galcore.ko' -print0 | xargs -0 -I{} cp {} /usr/src/app/galcore.ko
 
-COPY start.sh start.sh
-COPY *.tflite ./
-COPY *.py ./
-COPY samples/ samples/
-
 ENV UDEV=1
 
-CMD ["bash","start.sh"]
+CMD ["sleep","infinity"]
