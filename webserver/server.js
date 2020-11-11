@@ -94,8 +94,6 @@ async function doUpload() {
     let sql = "";
     let frmErr = "NA";
     form_errors = "";
-    let filename = "";
-    let bucket = uuid.substring(0, 7);
     let metaData = "";
     if (master_node != "unknown") {
       sql = "SELECT my_rowid, filename, user_class, user_class_id, user_description FROM wav_file WHERE current_status = 'ready'";
@@ -130,10 +128,10 @@ async function doUploadTasks(row) {
   var filename = "";
   let p = new Promise(async (resolve, reject) => {
     let sql = "";
-    let bucket = uuid.substring(0, 7);
+    let bucket = "uploads";
 
     // upload to master
-    filename = bucket + "-" + row.user_class_id + "-" + row.filename;
+    filename = uuid.substring(0, 7) + "-" + row.user_class_id + "-" + row.filename;
     let row_id = row.my_rowid;
     let metaData = {
       'Content-Type': 'application/octet-stream',
