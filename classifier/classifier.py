@@ -12,7 +12,7 @@ DB_FILE = os.getenv("DB_PATH", "/data/sound_app/sound_app.db")  # path and filen
 WAV_PATH = os.getenv("WAV_PATH", "/data/sound_app/") # folder with wav files
 MODEL_FILE = os.getenv("MODEL_FILE", "/data/sound_app/sound_edgetpu.tflite") # path and filename  with model file
 LABEL_FILE = os.getenv("LABEL_FILE", "/data/sound_app/labels.txt") #path and filename of associated model class names
-AUTO_DELETE = os.getenv("AUTO_DELETE", "true") #if equal to true, files above the thershold will automatically be deleted 
+AUTO_DELETE = os.getenv("AUTO_DELETE", "false") #if equal to true, files above the threshold will automatically be deleted 
 ct = os.getenv("CERTAINTY_THRESHOLD", "70") # minimum value to consider prediction to be acceptable
 if ct.isnumeric():
     CERTAINTY_THRESHOLD = int(ct)
