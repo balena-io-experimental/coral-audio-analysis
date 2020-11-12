@@ -15,7 +15,7 @@
         <% for(let i = 0; i < labels.length; i++) { %>
         <option value="<%= i %>"><%= labels[i] %></option>
         <% } %>
-        <option value="99">other (provide description)</option>
+        
       </select>
       <input type="hidden" name="hidFormName" value="id01">
       <input type="hidden" name="hidWavID1" value="0" id="hidWavID1">     
@@ -140,8 +140,7 @@
     
     <h1 id="topTitle">Sound Recordings (<%= model.length %>)</h1>
     <%- frmErr == "NA" ? '' : frmErr %>
-    <h5 class="w3-padding-32">Use this page to disposition the recordings that have been misclassified by the model.</h5>
-
+    
     <table width="100%"><tr><td>
       Filter by:
       <form id="filForm">
