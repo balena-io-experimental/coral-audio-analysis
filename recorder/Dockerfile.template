@@ -5,14 +5,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Add google repositories
 RUN \
-    echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
     printf "deb [arch=arm64] https://packages.cloud.google.com/apt mendel-bsp-enterprise-day main \n deb-src https://packages.cloud.google.com/apt mendel-bsp-enterprise-day main" \
     | tee /etc/apt/sources.list.d/multistrap-bsp.list && \
     printf "deb [arch=arm64] https://packages.cloud.google.com/apt mendel-day main \n deb-src https://packages.cloud.google.com/apt mendel-day main" \
     | tee /etc/apt/sources.list.d/multistrap-main.list
 
-# Install Coral Dev samples and dependencies
+# Install audio, etc...
 RUN \
     apt-get update && apt-get install -y wget \
     python3-pip \
