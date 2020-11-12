@@ -40,7 +40,7 @@ Use the device variables below to customize the behavior of the application:
 
 `CERTAINTY_THRESHOLD` - minimum percentage value of top guess to be considered a valid guess (default is 70)
 
-`AUTO_DELETE` - files with a prediction certainty above the `CERTAINTY_THRESHOLD` will automatically be deleted unless this is set to false. (default is true)
+`AUTO_DELETE` - files with a prediction certainty above the `CERTAINTY_THRESHOLD` will automatically be deleted unless this is set to false. (default is false)
 
 (all)
 
