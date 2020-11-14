@@ -1,4 +1,4 @@
-FROM  alanb128/librosa-aarch64:latest
+FROM  balenablocks/librosa-aarch64:raspberrypi4-64
 
 # Ensure package install won't block for user input during build
 ENV DEBIAN_FRONTEND=noninteractive
