@@ -14,8 +14,7 @@ RUN \
 
 # Install Coral Dev samples and dependencies libedgetpu-dev removed, libedgetpu1-std now libedgetpu1-legacy-std
 RUN \
-    apt-get update && apt-get install -y libedgetpu1-legacy-std \
-    wget \
+    apt-get update && apt-get install -y wget \
     python3-edgetpu \
     imx-gpu-viv \
     weston-imx \
@@ -25,7 +24,8 @@ RUN \
     alsa-utils=1.1.8-2 \
     sqlite3
 
-# Packages above install older version of llvmlite, so uninstall it leaving the proper version
+# python3-edgetpu above installs older version of llvmlite, 
+# so uninstall it to revert to version 0.31.0 from the base image
 RUN \
     pip uninstall -y llvmlite
 
