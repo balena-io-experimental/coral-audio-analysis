@@ -17,16 +17,17 @@ RUN \
     apt-get update && apt-get install -y libedgetpu1-legacy-std \
     wget \
     python3-edgetpu \
-    edgetpu-examples \
-    python3-pip \
     imx-gpu-viv \
     weston-imx \
-    pulseaudio-utils=12.2-4+deb10u1 \
     libpulse0=12.2-4+deb10u1 libpulsedsp=12.2-4+deb10u1 \
+    pulseaudio-utils=12.2-4+deb10u1 \
     pulseaudio=12.2-4+deb10u1 imx-board-audio=5-1 \
-    alsa-utils=1.1.8-2
+    alsa-utils=1.1.8-2 \
+    sqlite3
 
-# pyaudio is in base
+# Packages above install older version of llvmlite, so uninstall it leaving the proper version
+RUN \
+    pip uninstall -y llvmlite
 
 WORKDIR /usr/src/app
 
@@ -35,13 +36,9 @@ RUN \
 
 ENV UDEV=1
 
-RUN apt-get install -y sqlite3
-
 COPY labels.txt labels.txt
 COPY *.tflite ./
 COPY *.py ./
 COPY start.sh start.sh
-
-ENV UDEV=1
 
 CMD ["bash","start.sh"]
