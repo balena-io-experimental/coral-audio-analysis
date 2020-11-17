@@ -7,7 +7,7 @@ An optional master node will soon be available that has an S3-compatible object 
 
 Use the button below to deploy this application to your device or use the CLI.
 
-[![](https://www.balena.io/deploy.png)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/balena-io-playground/coral-audio-analysis)
+[![](https://www.balena.io/deploy.png)](https://dashboard.balena-cloud.com/deploy?repoUrl=https://github.com/balenalabs-incubator/coral-audio-analysis)
 
 **Overview:**
 
