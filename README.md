@@ -19,14 +19,15 @@ Use the button below to deploy this application to your device or use the CLI.
 
 **webserver** - Express webserver that runs on port 80 to provide a view into the sound app activity, listen to files and decide which ones to upload. 
 
-To see the sounds that have been detected by the device, as well as the classification, browse to the device's IP or public URL if enabled.
+To see the sounds that have been detected by the device, as well as the classification, browse to the device's IP (or public URL if enabled) to access the web UI. Links at the bottom of this UI provide device information as well as data export.
+
 Use the device variables below to customize the behavior of the application:
 
 (Recorder)
 
 `WAV_REC_THRESHOLD` - minimum intensity of audio reaching mic that triggers a recording start (default is 2000)
 
-`INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input) - You can see the audio details in the "recorder" log window when the container starts.
+`INPUT_INDEX` - index of physical audio input to use for recording (default is to use the board's default input) - You can see the audio details in the "recorder" log window when the container starts, or via the "device info" link at the bottom of the application's web page.
 
 `FAN_SPEED` - (Coral Dev board only) set a value in rpm (average range is 2000 - 8000) to run the board fan at a constant speed. Without this set, the fan is supposed to run automatically at 65 C. (Note that any fan noise will be picked up by the on-board microphone and cause significantly less accurate predictions by the classifier)
 
