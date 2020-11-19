@@ -129,7 +129,7 @@ while True:
                           interpreter_class2_id={6},
                           certainty_threshold={7},
                           classify_duration='{8}'
-                          WHERE my_rowid = {9}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
+                          WHERE my_rowid = {9}""".format(str(start_time), sound_names[ind[0]], top_certainty, sound_names[ind[1]], second_certainty, ind[0], ind[1], CERTAINTY_THRESHOLD, duration, row[0])
 
             else:
                 print("Top guess below threshold, saving file for further review.")
