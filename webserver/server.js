@@ -35,6 +35,7 @@ if (!minio_access_key || !minio_secret_key) {
     var minioClient = new Minio.Client({
       endPoint: master_node + '.balena-devices.com',
       port: 80,
+      region: 'myregion',
       useSSL: false,
       accessKey: minio_access_key,
       secretKey: minio_secret_key
