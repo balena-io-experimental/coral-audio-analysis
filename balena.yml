@@ -1,2 +1,10 @@
 repoUrl: "https://github.com/balenalabs-incubator/coral-audio-analysis"
+applicationEnvironmentVariables:
+ - WAV_REC_THRESHOLD: 2000
+ - LABEL_FILE: /data/sound_app/labels.txt
+ - MODEL_FILE: /data/sound_app/sound_edgetpu.tflite
+ - CERTAINTY_THRESHOLD: 70
+ - AUTO_DELETE: false
+ - WAV_PATH: /data/sound_app/
+ - DB_PATH: /data/sound_app/sound_app.db
 defaultDeviceType: 'coral-dev'
