@@ -3,12 +3,12 @@ slug: "coral-audio"
 name: "Coral Audio Analysis"
 type: "sw.application"
 assets:
-  - url: "https://github.com/balenalabs-incubator/coral-audio-analysis"
+  - url: "https://github.com/balenalabs-incubator/opendatacam"
     name: "repository"
   - url: "https://raw.githubusercontent.com/balenalabs-incubator/coral-audio-analysis/master/logo.png"
     name: "logo"
 data:
-  description: "Analyze sounds using AI on the edge and fleet intelligence."
+  description: "OpenDataCam is an open source tool to quantify the world. It quantifies and tracks moving objects with live video analysis."
   applicationEnvironmentVariables:
     - WAV_REC_THRESHOLD: 2000
     - LABEL_FILE: /data/sound_app/labels.txt
@@ -20,6 +20,5 @@ data:
   defaultDeviceType: 'coral-dev'
   supportedDeviceTypes:
     - "raspberrypi4-64"
-    - "fincm3"
     - "coral-dev"
  
