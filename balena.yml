@@ -3,12 +3,12 @@ slug: "coral-audio"
 name: "Coral Audio Analysis"
 type: "sw.application"
 assets:
-  - url: "https://github.com/balenalabs-incubator/opendatacam"
+  - url: "https://github.com/balenalabs-incubator/coral-audio-analysis"
     name: "repository"
   - url: "https://raw.githubusercontent.com/balenalabs-incubator/coral-audio-analysis/master/logo.png"
     name: "logo"
 data:
-  description: "OpenDataCam is an open source tool to quantify the world. It quantifies and tracks moving objects with live video analysis."
+  description: "Analyze sounds using AI on the edge and fleet intelligence."
   applicationEnvironmentVariables:
     - WAV_REC_THRESHOLD: 2000
     - LABEL_FILE: /data/sound_app/labels.txt
