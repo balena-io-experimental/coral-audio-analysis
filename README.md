@@ -1,5 +1,5 @@
 # coral-audio-analysis
-Coral Edge TPU project for analyzing noise pollution using the Coral Dev board or a Raspberry Pi 4 with the Edge TPU.
+Coral Edge TPU project for analyzing noise pollution using the Coral Dev board or a Raspberry Pi 4 with the Edge TPU. A [full tutorial](https://www.balena.io/blog/analyze-sounds-using-ai-on-the-edge-and-fleet-intelligence-part-1/) on this project is available on our blog.
 
 The on-board mic listens for noises above a certain intensity level. The noises are saved as wav files and then various audio features (such as a spectrogram) are extracted from the sounds and analyzed by a Tensorflow Lite model running on the Edge TPU. The included model is trained to recognize 10 noises from the [UrbanSound8K dataset](https://urbansounddataset.weebly.com/urbansound8k.html) based on patterns in its audio features: air conditioner, car horn, children playing, dog bark, drilling, engine idling, gun shot, jackhammer, siren, and street music. You can view the detected noises and model predictions on a web page hosted on-device.
 
